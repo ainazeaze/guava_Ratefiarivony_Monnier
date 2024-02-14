@@ -1,9 +1,9 @@
 # 1. Présentation globale du projet
 ## 1.1 Utilité du projet 
-### - Utilité et fonctionnalité
+### -<span id="test" style="color:cyan">  Utilité et fonctionnalité</span> 
 Google Guava est une bibliothèque open-source développée par Google pour Java. Elle étend les fonctionnalités de la bibliothèque standard Java, fournissant des utilitaires pour les collections, la programmation fonctionnelle, la manipulation de chaînes, la gestion des événements, la concurrence, et d'autres fonctionnalités. Guava vise à rendre le développement Java plus efficace en offrant des classes et des utilitaires prêts à l'emploi pour des tâches courantes.  
 
-### - Comment l'utiliser?  
+### -<span id="test" style="color:cyan">  Comment l'utiliser?  </span> 
 Pour l'utiliser avec Maven, il faut ajouter la dépendance Guava comme suit :  
 ```xml
 <dependency>
@@ -34,48 +34,48 @@ dependencies {
 ```  
 
 ## 1.2 Description du projet
-### - Readme dans le projet  
+### -<span id="test" style="color:cyan"> Readme dans le projet</span>   
 Le readme est pertinent, il contient beaucoup de liens vers des aides externes, contient aussi le guide d'installation et enfin les avertissements importants sur l'utilisation de Guava.
 Cela fait environ 1 mois que le Readme n'a pas été modifié mais la plupart des modifications effectuées durant ce mois ont été des modifications sur des tests ou sur des suppresion warnings et donc il n'y a pas eu besoin de changer le README.
 
-### - Documentation du projet  
+### - <span id="test" style="color:cyan">Documentation du projet  
 Ce projet est bien fourni avec une documentation. Comme il s'agit d'une librairie, la documentation montre les instructions à suivre pour ajouter la dépendance.
 
-### - Complétude de la documentation  
+### - <span id="test" style="color:cyan">Complétude de la documentation  </span> 
 Les informations paraissent suffisante pour se servir de la librairie. Cependant la documentation a été mis à jour pour la dernière fois en 2016, donc il se peut que  certaines informations sont absentes  
 
 # 2. Historique du logiciel  
 ## 2.1 Analyse du git
-### - Composition de l'équipe    
+### -<span id="test" style="color:cyan"> Composition de l'équipe </span>    
 Il y a 299 contributeurs. Chaque membre ne contribue de manière équilibrée. Ce n'est pas non plus équilibré dans le temps car certain contributeurs ont contribué en 2017 et ne sont plus revenu on revienne des années plus tard.  
 
-### - Acitivité du projet  
+### -<span id="test" style="color:cyan"> Acitivité du projet  </span> 
 Le projet est toujours en activité. Elle est assez répartie sur le temps.  
 Voici un diagramme illustrant l'activité en fonction du temps le nombre de commits par jour :  
 ![UML](image/image.png "Text to show on mouseover")  
 
-### - Utilisation des branches  
+### - <span id="test" style="color:cyan">Utilisation des branches </span>  
 Il ya 28 branches au total, dont seulement 5 sont actives en comptant master.  
 
-### - Utilisation des pull requests  
+### -<span id="test" style="color:cyan"> Utilisation des pull requests   </span> 
 Le mécanisme des pull requests est utilisé et il y en a 93 en attentes.  
 
 # 3. Architecture logicielle  
 ## 3.1 Utilisation de bibliothèque extérieures  
-### - Nombre de bibliothèques extérieures utilisées  
+### - <span id="test" style="color:cyan">Nombre de bibliothèques extérieures utilisées   </span> 
 Nombre de bibliothèques extérieures : 7 maven dependencies 
 
-## - Utilisation des bibliothèques extérieures  
+## -<span id="test" style="color:cyan">Utilisation des bibliothèques extérieures  </span> 
 Elles sont toutes utilisées 
 
 ## - 
 
 
 ## 3.2 Organisation en paquetages  
-### - Nombre de paquetages  
-Il y a 15 paquetages.  
+### -  <span id="test" style="color:cyan">Nombre de paquetages  </span> 
+Il y a 18 paquetages.  
 
-### - Liens entre les paquetages  
+### - <span id="test" style="color:cyan"> Liens entre les paquetages </span>  
 Par le métrique Efferent Coupling, on a trouvé que le paquetage **com.google.common.collect** importe un total de 222 autre paquetages. Voici un graphe illustrant cela :  
 
 ![UML](image/Efferent.png "Text to show on mouseover")  
@@ -84,15 +84,81 @@ Par le métrique Afferent Coupling, on a trouvé que le paquetage **com.google.c
 
 ![UML](image/Afferent.png "Text to show on mouseover")  
 
+### - <span id="test" style="color:cyan">Hiérarchie des paquetages</span>   
+Le nombre de niveau des paquetages est 5.(Exemple : **com.google.common.base.internal**)  
+La hiérarchie des paquetages des tests est similaire à la hiérarchie des paquetages des sources.
+Il y a 3 paquetages vide servant à la hiérarchie des paquetages : com, google, common.  
+
+### - <span id="test" style="color:cyan">Nom des paquetages  </span> 
+Les noms des paquetages ne montrent pas explicitement les designs patterns utilisés.  
+Il n'y a pas de lien avec une bases de données.  
+Les noms des paquetages nous apprennent le sujet implémenter dans ces paquetages.  
 
 
+## 3.3 Répartition des classes dans les paquetages  
+### - <span id="test" style="color:cyan">Stats sur les paquetages </span> 
+Le nombre maximum de classes dans un paquetage est 660.  
+Le nombre moyen de classes dans un paquetage est 88.4.  
+Le nombre minimum de classes dans un paquetage est 1 (ne comptant pas les paquetages vides mentionnés dessus).  
+Le nombre total de classe est 1592.  
+
+### - <span id="test" style="color:cyan">Encore des stats sur les paquetages </span>
+La moitié des classes sont dans le paquetages com.google.common.collect, et le reste sont réparti dans les autres paquetages.  
+Les paquetages non feuilles (com, google, common) ne contiennent pas de classes.  
+Les sources et les tests ont les mêmes paquetages mais ne contiennent pas forcément le même nombre de classes.  
+
+### - <span id="test" style="color:cyan">Couplages et cohésion  </span>
+Par le métrique Afferent Coupling, on a trouvé que le paquetage **com.google.common.annotations** a été importé à un total de 1105 fois dans d'autre paquetages.  
+Par le métrique Efferent Coupling, on a trouvé que le paquetage **com.google.common.collect** importe un total de 222 autre paquetages.  
+Le paquetages **com.google.common.base** contient des classes qui importent d'autres classes de ce même paquetage.  
+## 3.4 Organisations des classes  
+### - <span id="test" style="color:cyan">Hiérarchie des classes  </span>  
+Il y a 1,4 enfants par classes en moyenne. Le minimum étant 0 et le maximum 51.  
+La moyenne de Depth of Inheritance Tree est de 1,67. Le minimum étant 0 et le maximum 4.  
+Elle est plate.  
+
+### - <span id="test" style="color:cyan">Stabilité des classes </span>  
+La stabilité des classes en générale est de 53.7 %.  
+
+### - <span id="test" style="color:cyan">Cohésion des classes </span> 
+Les classes du paquetage **com.google.common.base** ont en moyenne
+94 % de cohésion entre elles.  
+
+# 4. Analyse appronfondie  
+## 4.1 Test
+### <span id="test" style="color:cyan">Stats sur les tests</span> 
+Il y a 1770 classes tests.  
+Il y a 11997 méthodes de tests.  
+Il y a  
+
+### - <span id="test" style="color:cyan">Couverture des tests </span> 
+Le pourcentage de code couvert pas les tests est de 92,3 %.  
+Il y a des parties du codes qui sont pas couverts comme par exemple la méthode **getInheritableThreadLocalsField()** dans **Finalizer.java** dans le package **com.google.common.base.internal** etc ...
+En tout sur 183900 instructions, 14121 seulement ne sont pas couverts.
+
+### - <span id="test" style="color:cyan">Type de tests </span> 
+Il y a majoritairement des tests unitaires, mais il y a d'autres tests comme les tests fonctionnels, les tests de régressions, les tests de performances.
+
+### - 
+Il y a 7 tests qui ne sont pas passés sur 857236 tests.  
+
+## 4.2 Commentaires  
+### <span id="test" style="color:cyan">Nombre de commentaires</span> 
+Il y a 1853809 lignes de commentaires.  
+
+### - 
+On y trouve du javadoc, et aussi du code commenté dans les méthodes complexes et les méthodes nécessitant une clarification. 
+Il y a aussi une licence à chaque debut des fichiers(copyright).  
+
+### -  
+Les méthodes simples comme les getters et les setters sont dépourvues de commentaires.  
+Une partie des petites classes ne possèdent pas de commentaires à toutes les méthodes.(Exemple : **MacHashFunction.java** du paquetage **com.google.common.hash**)  
+
+## 4.3 Dépréciation  
+  
 
 
-
-
-
-
-
+## 4.4 Duplication de code   
 
 
 
