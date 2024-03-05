@@ -129,7 +129,7 @@ Les classes du paquetage **com.google.common.base** ont en moyenne
 ### <span id="test" style="color:cyan">Stats sur les tests</span> 
 Il y a 1770 classes tests.  
 Il y a 11997 méthodes de tests.  
-Il y a  
+Il y a 74 055 assert au total.  
 
 ### - <span id="test" style="color:cyan">Couverture des tests </span> 
 Le pourcentage de code couvert pas les tests est de 92,3 %.  
@@ -155,10 +155,93 @@ Les méthodes simples comme les getters et les setters sont dépourvues de comme
 Une partie des petites classes ne possèdent pas de commentaires à toutes les méthodes.(Exemple : **MacHashFunction.java** du paquetage **com.google.common.hash**)  
 
 ## 4.3 Dépréciation  
-  
+### <span id="test" style="color:cyan">Bout de code dépréciés</span>  
+Voici quelques méthodes dépréciées:  
+- la méthode digit() dans CharMatcher  
+- la méthode javaDigit() dans Charmatcher  
+
+Il y a des methodes dépréciées dans la majorité des paquetages.Celui qui en contient le plus est le paquetages **com.google.common.collect**  
+
+Voici un exemple d'une méthode non dépréciée qui appelle une méthode dépréciée :  
+- la méthode **com.google.common.jimfs.UserDefinedAttributeProvider.View.delete(String)** utilise la méthode **com.google.common.jimfs.File.deleteAttribute(String, String)**  qui lui utilise la méthode dépréciée **com.google.common.collect.ArrayTable.remove(Object, Object)**  
+
+Donc cela provoque une propagation de la dépréciation ce qui signifie que si, un jour, la méthode dépréciée se voit supprimée alors toutes les méthodes appelant cette dernière ne marcheront plus.  
 
 
-## 4.4 Duplication de code   
+
+
+## 4.5 God classes  
+Le maximum se trouve dans **LocalCache.java** avec 62 méthodes.  
+Le minimum se trouve dans **ParametricNullness.java** avec 0 méthodes. 
+La moyenne est de 6 méthodes par classes.  
+
+Les gods classes qu'on a reperé sont : 
+Map.java : fait référence a de nombreuses autres classes,
+ LocalCache.java : elle utilisent plus de choses internes.  
+
+
+## 4.6 Analyses des méthodes  
+Le maximum en compléxité cyclomatique est détenu par la méthode roundToDouble qui se trouve dans le fichier **ToDoubleRounder.java**  
+Le minimum est à zero pour ParametricNullness.  
+La moyenne est à 1,5.  
+
+Le maximum de lignes de codes d'une méthode est de 107 dans le fichier **AbstractCompositeHashFunction.java**  
+Le minimum est de 0 dans le fichier **LongAddable.java**  
+La moyenne est de 5,8
+
+Le maximum d'arguments dans une méthode est de 20 dans la méthode **of** de la classe **ImmutableMap** du fichier **ImmutableMap.java**  
+**ImmutableBiMap** et **ImmutableSortedMap** possèdent toutes les deux une méthodes avec 20 arguments aussi.
+
+
+Un exemple de méthode qui retourne un code d'erreur : 
+- startFinalizer de **Finalizer.java** qui retourne un IllegalArgumentException  
+- get de **Absent.java** qui retourne un  IllegalStateException  
+
+
+# 5. Nettoyage de Code et Code Smells  
+## 5.1 Règle de nommage  
+Les noms choisies pour les méthodes sont bien indicatifs de leur fonctions.  
+Les noms utilisés sont tous bien distingués et ne participent pas à la désinformation.Les noms sont parfois compliqués et long ,mais précis. Exemple : ImmutableMap, ImmutableEnumMap, LinkedHashMap,  HashMap...  
+On a par exemple dans le fichier Map.java une méthode difference() qui retourne la différence entre les éléments de deux LinkedHashMap. Dans cette méthode on trouve des variables onlyOnLeft, onlyOnRigth, onBoth dont le rôle est très explicites.  
+
+## 5.2 Nombre magiques  
+Voici des exemples de nombres magiques :  
+```java
+ if (alphaIndex < 26 && alphaIndex == getAlphaIndex(c2)) {
+        continue;
+      }
+```
+Ici 26 est un nombre magique , bien qu'on reconnaisse assez vite que ca correspond au nombre de lettre de l'alphabet, ça aurait été plus clair de définir une variable avec un nom indicatif ex: alphabetLength.  
+
+
+```java
+int len = string.length();
+StringBuilder buf = new StringBuilder((len * 3 / 2) + 16);
+```
+Ici le calcul se trouvant en paramètre de StringBuilder n'est pas du tout explicite et rien n'est indiqué dans la documentation de la méthode.  
+    
+## 5.3 Structure de code   
+
+Le code est bien structuré , les variables d'instances sont régroupés au début de la classe. Les méthodes publiques sont bien en haut avant les méthodes privées.  
+
+
+## 5.4 Code mort  
+Un exemple de code mort :
+- la fonction appendTo(A, Object, Object, Object...) dans **com.google.common.base** dans le fichier Joiner.java. Elle est implémentée mais n'est utilisé autre part dans tout le projet. C'est une des définition de la fonction donc elle peut être utile dans certain cas, de ce fait c'est convenable de ne pas la supprimer.  
+
+- la fonction writeObject(ObjectOutputStream) dans **com.google.common.collect** dans le fichier Joiner.java. Elle est implémentée mais n'est utilisé autre part dans tout le projet. Ceci pourrait être supprimé sans changer le comportement du conde
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
