@@ -105,7 +105,13 @@ public final class Booleans {
    * @return a hash code for the value
    */
   public static int hashCode(boolean value) {
-    return value ? 1231 : 1237;
+    int truePrimeNb = 1231;
+    int falsePrimeNb = 1237;
+    /*
+    Those two number are prime number. The use of prime number help distribute the hash code more evenly across the range of possible hash code values.
+    Since 1231 and 1237 have been used in a lot of java project they've been sort of a convention.
+    */
+    return value ? truePrimeNb : falsePrimeNb;
   }
 
   /**
