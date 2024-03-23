@@ -391,7 +391,7 @@ public final class Chars {
     public int compare(char[] left, char[] right) {
       int minLength = Math.min(left.length, right.length);
       for (int i = 0; i < minLength; i++) {
-        int result = Chars.compare(left[i], right[i]);
+        int result = Chars.charCompare(left[i], right[i]);
         if (result != 0) {
           return result;
         }
