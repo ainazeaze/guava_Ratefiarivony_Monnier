@@ -113,7 +113,7 @@ public final class Chars {
    * @return a negative value if {@code a} is less than {@code b}; a positive value if {@code a} is
    *     greater than {@code b}; or zero if they are equal
    */
-  public static int compare(char a, char b) {
+  public static int charCompare(char a, char b) {
     return a - b; // safe due to restricted range
   }
 
@@ -124,7 +124,7 @@ public final class Chars {
    * @param target a primitive {@code char} value
    * @return {@code true} if {@code array[i] == target} for some value of {@code i}
    */
-  public static boolean contains(char[] array, char target) {
+  public static boolean containsChar(char[] array, char target) {
     for (char value : array) {
       if (value == target) {
         return true;

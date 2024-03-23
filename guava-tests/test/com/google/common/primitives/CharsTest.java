@@ -93,20 +93,20 @@ public class CharsTest extends TestCase {
     for (char x : VALUES) {
       for (char y : VALUES) {
         assertWithMessage(x + ", " + y)
-            .that(Math.signum(Chars.compare(x, y)))
+            .that(Math.signum(Chars.charCompare(x, y)))
             .isEqualTo(Math.signum(Character.valueOf(x).compareTo(y)));
       }
     }
   }
 
   public void testContains() {
-    assertThat(Chars.contains(EMPTY, (char) 1)).isFalse();
-    assertThat(Chars.contains(ARRAY1, (char) 2)).isFalse();
-    assertThat(Chars.contains(ARRAY234, (char) 1)).isFalse();
-    assertThat(Chars.contains(new char[] {(char) -1}, (char) -1)).isTrue();
-    assertThat(Chars.contains(ARRAY234, (char) 2)).isTrue();
-    assertThat(Chars.contains(ARRAY234, (char) 3)).isTrue();
-    assertThat(Chars.contains(ARRAY234, (char) 4)).isTrue();
+    assertThat(Chars.containsChar(EMPTY, (char) 1)).isFalse();
+    assertThat(Chars.containsChar(ARRAY1, (char) 2)).isFalse();
+    assertThat(Chars.containsChar(ARRAY234, (char) 1)).isFalse();
+    assertThat(Chars.containsChar(new char[] {(char) -1}, (char) -1)).isTrue();
+    assertThat(Chars.containsChar(ARRAY234, (char) 2)).isTrue();
+    assertThat(Chars.containsChar(ARRAY234, (char) 3)).isTrue();
+    assertThat(Chars.containsChar(ARRAY234, (char) 4)).isTrue();
   }
 
   public void testIndexOf() {
