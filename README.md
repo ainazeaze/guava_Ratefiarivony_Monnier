@@ -144,7 +144,7 @@ Il y a 7 tests qui ne sont pas passés sur 857236 tests.
 
 ## 4.2 Commentaires  
 ### <span id="test" style="color:cyan">Nombre de commentaires</span> 
-Il y a 1853809 lignes de commentaires.  
+Il y a 1853809 lignes de commentaires.
 
 ### - 
 On y trouve du javadoc, et aussi du code commenté dans les méthodes complexes et les méthodes nécessitant une clarification. 
@@ -152,7 +152,8 @@ Il y a aussi une licence à chaque debut des fichiers(copyright).
 
 ### -  
 Les méthodes simples comme les getters et les setters sont dépourvues de commentaires.  
-Une partie des petites classes ne possèdent pas de commentaires à toutes les méthodes.(Exemple : **MacHashFunction.java** du paquetage **com.google.common.hash**)  
+Une partie des petites classes ne possèdent pas de commentaires à toutes les méthodes.(Exemple : **MacHashFunction.java** du paquetage **com.google.common.hash**).  
+Une manière d'améliorere le code serait d'ajouter des commentaires à toutes les fonctions ayant besoin de plus d'explication.   
 
 ## 4.3 Dépréciation  
 ### <span id="test" style="color:cyan">Bout de code dépréciés</span>  
@@ -178,6 +179,7 @@ La moyenne est de 6 méthodes par classes.
 Les gods classes qu'on a reperé sont : 
 Map.java : fait référence a de nombreuses autres classes,
  LocalCache.java : elle utilisent plus de choses internes.  
+Une amélioration possible serait de séparer la classe en plusieurs, pour éviter qu'une classe soit surchargée.
 
 
 ## 4.6 Analyses des méthodes  
@@ -229,7 +231,11 @@ Le code est bien structuré , les variables d'instances sont régroupés au déb
 Un exemple de code mort :
 - la fonction appendTo(A, Object, Object, Object...) dans **com.google.common.base** dans le fichier Joiner.java. Elle est implémentée mais n'est utilisé autre part dans tout le projet. C'est une des définition de la fonction donc elle peut être utile dans certain cas, de ce fait c'est convenable de ne pas la supprimer.  
 
-- la fonction writeObject(ObjectOutputStream) dans **com.google.common.collect** dans le fichier Joiner.java. Elle est implémentée mais n'est utilisé autre part dans tout le projet. Ceci pourrait être supprimé sans changer le comportement du conde
+- la fonction writeObject(ObjectOutputStream) dans **com.google.common.cache** dans le fichier LongAdder.java. Elle est implémentée mais n'est utilisé autre part dans tout le projet. Ceci pourrait être supprimé sans changer le comportement du code.  
+
+Ne sachant si il s'agit d'une API public ou privé nous ne savons pas si nous pouvons retirer ces méthodes, cependant nous pouvons ajouter du code qui teste ces méthodes.
+
+
 
 
 
