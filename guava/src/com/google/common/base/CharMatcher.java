@@ -356,90 +356,6 @@ public abstract class CharMatcher implements Predicate<Character> {
     return Platform.precomputeCharMatcher(this);
   }
 
-  private static final int DISTINCT_CHARS = Character.MAX_VALUE - Character.MIN_VALUE + 1;
-
-  /**
-   * This is the actual implementation of {@link #precomputed}, but we bounce calls through a method
-   * on {@link Platform} so that we can have different behavior in GWT.
-   *
-   * <p>This implementation tries to be smart in a number of ways. It recognizes cases where the
-   * negation is cheaper to precompute than the matcher itself; it tries to build small hash tables
-   * for matchers that only match a few characters, and so on. In the worst-case scenario, it
-   * constructs an eight-kilobyte bit array and queries that. In many situations this produces a
-   * matcher which is faster to query than the original.
-   */
-  @J2ktIncompatible
-  @GwtIncompatible // SmallCharMatcher
-  CharMatcher precomputedInternal() {
-    final BitSet table = new BitSet();
-    setBits(table);
-    int totalCharacters = table.cardinality();
-    if (totalCharacters * 2 <= DISTINCT_CHARS) {
-      return precomputedPositive(totalCharacters, table, toString());
-    } else {
-      // TODO(lowasser): is it worth it to worry about the last character of large matchers?
-      table.flip(Character.MIN_VALUE, Character.MAX_VALUE + 1);
-      int negatedCharacters = DISTINCT_CHARS - totalCharacters;
-      String suffix = ".negate()";
-      final String description = toString();
-      String negatedDescription =
-          description.endsWith(suffix)
-              ? description.substring(0, description.length() - suffix.length())
-              : description + suffix;
-      return new NegatedFastMatcher(
-          precomputedPositive(negatedCharacters, table, negatedDescription)) {
-        @Override
-        public String toString() {
-          return description;
-        }
-      };
-    }
-  }
-
-  /**
-   * Helper method for {@link #precomputedInternal} that doesn't test if the negation is cheaper.
-   */
-  @J2ktIncompatible
-  @GwtIncompatible // SmallCharMatcher
-  private static CharMatcher precomputedPositive(
-      int totalCharacters, BitSet table, String description) {
-    switch (totalCharacters) {
-      case 0:
-        return none();
-      case 1:
-        return is((char) table.nextSetBit(0));
-      case 2:
-        char c1 = (char) table.nextSetBit(0);
-        char c2 = (char) table.nextSetBit(c1 + 1);
-        return isEither(c1, c2);
-      default:
-        return isSmall(totalCharacters, table.length())
-            ? SmallCharMatcher.from(table, description)
-            : new BitSetMatcher(table, description);
-    }
-  }
-
-  @J2ktIncompatible
-  @GwtIncompatible // SmallCharMatcher
-  private static boolean isSmall(int totalCharacters, int tableLength) {
-    return totalCharacters <= SmallCharMatcher.MAX_SIZE
-        && tableLength > (totalCharacters * 4 * Character.SIZE);
-    // err on the side of BitSetMatcher
-  }
-
-  /** Sets bits in {@code table} matched by this matcher. */
-  @J2ktIncompatible
-  @GwtIncompatible // used only from other GwtIncompatible code
-  void setBits(BitSet table) {
-    for (int c = Character.MAX_VALUE; c >= Character.MIN_VALUE; c--) {
-      if (matches((char) c)) {
-        table.set(c);
-      }
-    }
-  }
-
-  // Text processing routines
-
   /**
    * Returns {@code true} if a character sequence contains at least one matching BMP character.
    * Equivalent to {@code !matchesNoneOf(sequence)}.
@@ -839,6 +755,25 @@ public abstract class CharMatcher implements Predicate<Character> {
             sequence, first, last + 1, replacement, new StringBuilder(last + 1 - first), false);
   }
 
+  /**
+   * @deprecated Provided only to satisfy the {@link Predicate} interface; use {@link #matches}
+   *     instead.
+   */
+  @Deprecated
+  @Override
+  public boolean apply(Character character) {
+    return matches(character);
+  }
+
+  /**
+   * Returns a string representation of this {@code CharMatcher}, such as {@code
+   * CharMatcher.or(WHITESPACE, JAVA_DIGIT)}.
+   */
+  @Override
+  public String toString() {
+    return super.toString();
+  }
+
   private String finishCollapseFrom(
       CharSequence sequence,
       int start,
@@ -859,25 +794,6 @@ public abstract class CharMatcher implements Predicate<Character> {
       }
     }
     return builder.toString();
-  }
-
-  /**
-   * @deprecated Provided only to satisfy the {@link Predicate} interface; use {@link #matches}
-   *     instead.
-   */
-  @Deprecated
-  @Override
-  public boolean apply(Character character) {
-    return matches(character);
-  }
-
-  /**
-   * Returns a string representation of this {@code CharMatcher}, such as {@code
-   * CharMatcher.or(WHITESPACE, JAVA_DIGIT)}.
-   */
-  @Override
-  public String toString() {
-    return super.toString();
   }
 
   /**
@@ -909,6 +825,94 @@ public abstract class CharMatcher implements Predicate<Character> {
       return new NegatedFastMatcher(this);
     }
   }
+
+
+  private static final int DISTINCT_CHARS = Character.MAX_VALUE - Character.MIN_VALUE + 1;
+
+  /**
+   * This is the actual implementation of {@link #precomputed}, but we bounce calls through a method
+   * on {@link Platform} so that we can have different behavior in GWT.
+   *
+   * <p>This implementation tries to be smart in a number of ways. It recognizes cases where the
+   * negation is cheaper to precompute than the matcher itself; it tries to build small hash tables
+   * for matchers that only match a few characters, and so on. In the worst-case scenario, it
+   * constructs an eight-kilobyte bit array and queries that. In many situations this produces a
+   * matcher which is faster to query than the original.
+   */
+  @J2ktIncompatible
+  @GwtIncompatible // SmallCharMatcher
+  CharMatcher precomputedInternal() {
+    final BitSet table = new BitSet();
+    setBits(table);
+    int totalCharacters = table.cardinality();
+    if (totalCharacters * 2 <= DISTINCT_CHARS) {
+      return precomputedPositive(totalCharacters, table, toString());
+    } else {
+      // TODO(lowasser): is it worth it to worry about the last character of large matchers?
+      table.flip(Character.MIN_VALUE, Character.MAX_VALUE + 1);
+      int negatedCharacters = DISTINCT_CHARS - totalCharacters;
+      String suffix = ".negate()";
+      final String description = toString();
+      String negatedDescription =
+          description.endsWith(suffix)
+              ? description.substring(0, description.length() - suffix.length())
+              : description + suffix;
+      return new NegatedFastMatcher(
+          precomputedPositive(negatedCharacters, table, negatedDescription)) {
+        @Override
+        public String toString() {
+          return description;
+        }
+      };
+    }
+  }
+
+  /**
+   * Helper method for {@link #precomputedInternal} that doesn't test if the negation is cheaper.
+   */
+  @J2ktIncompatible
+  @GwtIncompatible // SmallCharMatcher
+  private static CharMatcher precomputedPositive(
+      int totalCharacters, BitSet table, String description) {
+    switch (totalCharacters) {
+      case 0:
+        return none();
+      case 1:
+        return is((char) table.nextSetBit(0));
+      case 2:
+        char c1 = (char) table.nextSetBit(0);
+        char c2 = (char) table.nextSetBit(c1 + 1);
+        return isEither(c1, c2);
+      default:
+        return isSmall(totalCharacters, table.length())
+            ? SmallCharMatcher.from(table, description)
+            : new BitSetMatcher(table, description);
+    }
+  }
+
+  @J2ktIncompatible
+  @GwtIncompatible // SmallCharMatcher
+  private static boolean isSmall(int totalCharacters, int tableLength) {
+    return totalCharacters <= SmallCharMatcher.MAX_SIZE
+        && tableLength > (totalCharacters * 4 * Character.SIZE);
+    // err on the side of BitSetMatcher
+  }
+
+  /** Sets bits in {@code table} matched by this matcher. */
+  @J2ktIncompatible
+  @GwtIncompatible // used only from other GwtIncompatible code
+  void setBits(BitSet table) {
+    for (int c = Character.MAX_VALUE; c >= Character.MIN_VALUE; c--) {
+      if (matches((char) c)) {
+        table.set(c);
+      }
+    }
+  }
+
+  // Text processing routines
+
+
+
 
   /** {@link FastMatcher} which overrides {@code toString()} with a custom name. */
   abstract static class NamedFastMatcher extends FastMatcher {
@@ -945,6 +949,11 @@ public abstract class CharMatcher implements Predicate<Character> {
 
     private final BitSet table;
 
+    @Override
+    public boolean matches(char c) {
+      return table.get(c);
+    }
+
     private BitSetMatcher(BitSet table, String description) {
       super(description);
       if (table.length() + Long.SIZE < table.size()) {
@@ -952,11 +961,6 @@ public abstract class CharMatcher implements Predicate<Character> {
         // If only we could actually call BitSet.trimToSize() ourselves...
       }
       this.table = table;
-    }
-
-    @Override
-    public boolean matches(char c) {
-      return table.get(c);
     }
 
     @Override
@@ -971,10 +975,6 @@ public abstract class CharMatcher implements Predicate<Character> {
   private static final class Any extends NamedFastMatcher {
 
     static final CharMatcher INSTANCE = new Any();
-
-    private Any() {
-      super("CharMatcher.any()");
-    }
 
     @Override
     public boolean matches(char c) {
@@ -1062,6 +1062,11 @@ public abstract class CharMatcher implements Predicate<Character> {
     public CharMatcher negate() {
       return none();
     }
+
+    private Any() {
+      super("CharMatcher.any()");
+    }
+
   }
 
   /** Implementation of {@link #none()}. */
@@ -1210,6 +1215,11 @@ public abstract class CharMatcher implements Predicate<Character> {
     static final CharMatcher INSTANCE = new BreakingWhitespace();
 
     @Override
+    public String toString() {
+      return "CharMatcher.breakingWhitespace()";
+    }
+
+    @Override
     public boolean matches(char c) {
       switch (c) {
         case '\t':
@@ -1230,11 +1240,6 @@ public abstract class CharMatcher implements Predicate<Character> {
         default:
           return c >= '\u2000' && c <= '\u200a';
       }
-    }
-
-    @Override
-    public String toString() {
-      return "CharMatcher.breakingWhitespace()";
     }
   }
 
@@ -1407,16 +1412,16 @@ public abstract class CharMatcher implements Predicate<Character> {
 
     static final CharMatcher INSTANCE = new JavaIsoControl();
 
-    private JavaIsoControl() {
-      super("CharMatcher.javaIsoControl()");
-    }
-
-    @Override
     public boolean matches(char c) {
       return c <= '\u001f' || (c >= '\u007f' && c <= '\u009f');
     }
   }
 
+    private JavaIsoControl() {
+      super("CharMatcher.javaIsoControl()");
+    }
+
+    @Override
   /** Implementation of {@link #invisible()}. */
   private static final class Invisible extends RangesMatcher {
     // Plug the following UnicodeSet pattern into
