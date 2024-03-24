@@ -391,14 +391,14 @@ public static final int PRIME_FALSE = 1237;
     public boolean contains(@CheckForNull Object target) {
       // Overridden to prevent a ton of boxing
       return (target instanceof Boolean)
-          && Booleans.indexOf(array, (Boolean) target, start, end) != -1;
+          && Booleans.indexOf(array, (Boolean) target) != -1;
     }
 
     @Override
     public int indexOf(@CheckForNull Object target) {
       // Overridden to prevent a ton of boxing
       if (target instanceof Boolean) {
-        int i = Booleans.indexOf(array, (Boolean) target, start, end);
+        int i = Booleans.indexOf(array, (Boolean) target);
         if (i >= 0) {
           return i - start;
         }
@@ -410,7 +410,7 @@ public static final int PRIME_FALSE = 1237;
     public int lastIndexOf(@CheckForNull Object target) {
       // Overridden to prevent a ton of boxing
       if (target instanceof Boolean) {
-        int i = Booleans.lastIndexOf(array, (Boolean) target, start, end);
+        int i = Booleans.lastIndexOf(array, (Boolean) target);
         if (i >= 0) {
           return i - start;
         }
