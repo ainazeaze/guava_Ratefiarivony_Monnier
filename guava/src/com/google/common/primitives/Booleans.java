@@ -235,24 +235,6 @@ public static final int PRIME_FALSE = 1237;
     }
 
   /**
-   * Returns the index of the last appearance of the value {@code target} in {@code array}.
-   *
-   * @param array an array of {@code boolean} values, possibly empty
-   * @param target a primitive {@code boolean} value
-   * @return the greatest index {@code i} for which {@code array[i] == target}, or {@code -1} if no
-   *     such index exists.
-   */
-  public static int lastIndexOf(boolean[] array, boolean target) {
-  checkNotNull(array, "array");
-    for (int i = array.length - 1; i >= 0 ; i--) {
-      if (array[i] == target) {
-        return i;
-      }
-    }
-    return -1;
-  }
-
-  /**
    * Returns the values from each provided array combined into a single array. For example, {@code
    * concat(new boolean[] {a, b}, new boolean[] {}, new boolean[] {c}} returns the array {@code {a,
    * b, c}}.
