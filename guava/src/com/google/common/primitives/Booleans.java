@@ -154,6 +154,25 @@ public static final int PRIME_FALSE = 1237;
   }
 
   /**
+     * Returns the index of the first appearance of the value {@code target} in {@code array}.
+     *
+     * <p><b>Note:</b> consider representing the array as a {@link java.util.BitSet} instead, and
+     * using {@link java.util.BitSet#nextSetBit(int)} or {@link java.util.BitSet#nextClearBit(int)}.
+     *
+     * @param array an array of {@code boolean} values, possibly empty
+     * @param target a primitive {@code boolean} value
+     * @return the least index {@code i} for which {@code array[i] == target}, or {@code -1} if no
+     *     such index exists.
+     */
+  private static int indexOf(boolean[] array, boolean target, int start, int end) {
+      for (int i = start; i < end; i++) {
+        if (array[i] == target) {
+          return i;
+        }
+      }
+      return -1;
+    }
+  /**
    * Returns the start position of the first occurrence of the specified {@code target} within
    * {@code array}, or {@code -1} if there is no such occurrence.
    *
@@ -183,6 +202,23 @@ public static final int PRIME_FALSE = 1237;
   }
 
   /**
+     * Returns the index of the last appearance of the value {@code target} in {@code array}.
+     *
+     * @param array an array of {@code boolean} values, possibly empty
+     * @param target a primitive {@code boolean} value
+     * @return the greatest index {@code i} for which {@code array[i] == target}, or {@code -1} if no
+     *     such index exists.
+     */
+  private static int lastIndexOf(boolean[] array, boolean target, int start, int end) {
+      for (int i = end - 1; i >= start; i--) {
+        if (array[i] == target) {
+          return i;
+        }
+      }
+      return -1;
+    }
+
+  /**
    * Returns the index of the last appearance of the value {@code target} in {@code array}.
    *
    * @param array an array of {@code boolean} values, possibly empty
@@ -190,8 +226,6 @@ public static final int PRIME_FALSE = 1237;
    * @return the greatest index {@code i} for which {@code array[i] == target}, or {@code -1} if no
    *     such index exists.
    */
-
-  // TODO(kevinb): consider making this public
   public static int lastIndexOf(boolean[] array, boolean target) {
   checkNotNull(array, "array");
     for (int i = array.length - 1; i >= 0 ; i--) {
@@ -391,14 +425,14 @@ public static final int PRIME_FALSE = 1237;
     public boolean contains(@CheckForNull Object target) {
       // Overridden to prevent a ton of boxing
       return (target instanceof Boolean)
-          && Booleans.indexOf(array, (Boolean) target) != -1;
+          && Booleans.indexOf(array, (Boolean) target, start, end) != -1;
     }
 
     @Override
     public int indexOf(@CheckForNull Object target) {
       // Overridden to prevent a ton of boxing
       if (target instanceof Boolean) {
-        int i = Booleans.indexOf(array, (Boolean) target);
+        int i = Booleans.indexOf(array, (Boolean) target, start, end);
         if (i >= 0) {
           return i - start;
         }
