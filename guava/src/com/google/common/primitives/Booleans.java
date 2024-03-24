@@ -190,13 +190,11 @@ public static final int PRIME_FALSE = 1237;
    * @return the greatest index {@code i} for which {@code array[i] == target}, or {@code -1} if no
    *     such index exists.
    */
-  public static int lastIndexOf(boolean[] array, boolean target) {
-    return lastIndexOf(array, target, 0, array.length);
-  }
 
   // TODO(kevinb): consider making this public
-  private static int lastIndexOf(boolean[] array, boolean target, int start, int end) {
-    for (int i = end - 1; i >= start; i--) {
+  public static int lastIndexOf(boolean[] array, boolean target, int start, int end) {
+  checkNotNull(array, "array");
+    for (int i = array.length - 1; i >= 0 ; i--) {
       if (array[i] == target) {
         return i;
       }
