@@ -189,7 +189,7 @@ public static final int PRIME_FALSE = 1237;
    * @param array the array to search for the sequence {@code target}
    * @param target the array to search for as a sub-sequence of {@code array}
    */
-   public static int indexOf(char[] array, char[] target) {
+   public static int indexOf(boolean[] array, boolean target) {
        checkNotNull(array, "array");
        checkNotNull(target, "target");
        if (target.length == 0) {
@@ -204,7 +204,7 @@ public static final int PRIME_FALSE = 1237;
        return -1;
    }
 
-   private static boolean startsWith(char[] array, int startIndex, char[] target) {
+   private static boolean startsWith(boolean[] array, int startIndex, boolean[] target) {
        for (int j = 0; j < target.length; j++) {
            if (array[startIndex + j] != target[j]) {
                return false;
@@ -233,7 +233,6 @@ public static final int PRIME_FALSE = 1237;
       }
       return -1;
     }
-
   /**
    * Returns the values from each provided array combined into a single array. For example, {@code
    * concat(new boolean[] {a, b}, new boolean[] {}, new boolean[] {c}} returns the array {@code {a,
