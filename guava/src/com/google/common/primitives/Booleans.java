@@ -192,7 +192,7 @@ public static final int PRIME_FALSE = 1237;
    */
 
   // TODO(kevinb): consider making this public
-  public static int lastIndexOf(boolean[] array, boolean target, int start, int end) {
+  public static int lastIndexOf(boolean[] array, boolean target) {
   checkNotNull(array, "array");
     for (int i = array.length - 1; i >= 0 ; i--) {
       if (array[i] == target) {
