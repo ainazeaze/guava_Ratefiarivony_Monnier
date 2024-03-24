@@ -189,7 +189,7 @@ public static final int PRIME_FALSE = 1237;
    * @param array the array to search for the sequence {@code target}
    * @param target the array to search for as a sub-sequence of {@code array}
    */
-   public static int indexOf(boolean[] array, boolean target) {
+   public static int indexOf(boolean[] array, boolean[] target) {
        checkNotNull(array, "array");
        checkNotNull(target, "target");
        if (target.length == 0) {
