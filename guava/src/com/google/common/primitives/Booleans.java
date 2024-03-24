@@ -189,24 +189,29 @@ public static final int PRIME_FALSE = 1237;
    * @param array the array to search for the sequence {@code target}
    * @param target the array to search for as a sub-sequence of {@code array}
    */
-  public static int indexOf(boolean[] array, boolean[] target) {
-    checkNotNull(array, "array");
-    checkNotNull(target, "target");
-    if (target.length == 0) {
-      return 0;
-    }
+   public static int indexOf(char[] array, char[] target) {
+       checkNotNull(array, "array");
+       checkNotNull(target, "target");
+       if (target.length == 0) {
+           return 0;
+       }
 
-    outer:
-    for (int i = 0; i < array.length - target.length + 1; i++) {
-      for (int j = 0; j < target.length; j++) {
-        if (array[i + j] != target[j]) {
-          continue outer;
-        }
-      }
-      return i;
-    }
-    return -1;
-  }
+       for (int i = 0; i < array.length - target.length + 1; i++) {
+           if (startsWith(array, i, target)) {
+               return i;
+           }
+       }
+       return -1;
+   }
+
+   private static boolean startsWith(char[] array, int startIndex, char[] target) {
+       for (int j = 0; j < target.length; j++) {
+           if (array[startIndex + j] != target[j]) {
+               return false;
+           }
+       }
+       return true;
+   }
 
   /**
      * Returns the index of the last appearance of the value {@code target} in {@code array}.
