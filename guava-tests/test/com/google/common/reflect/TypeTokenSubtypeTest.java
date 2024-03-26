@@ -278,35 +278,35 @@ public class TypeTokenSubtypeTest extends TestCase {
     @TestSubtype(suppressGetSupertype = true, suppressGetSubtype = true)
     public UseList<? extends List<Enum<? extends Enum<?>>>>
         wildcardBoundUsesImplicitlyRecursiveBoundedWildcard(UseList<? extends List<Enum<?>>> arg) {
-      return isSubtype(arg);
+      return (UseList<? extends List<Enum<? extends Enum<?>>>>) isSubtype(arg);
     }
 
     @TestSubtype(suppressGetSupertype = true, suppressGetSubtype = true)
     public UseList<? extends List<Enum<? extends Enum<?>>>>
         wildcardBoundHasImplicitBoundAtsInvariantPosition(UseList<? extends List<Enum<?>>> arg) {
-      return isSubtype(arg);
+      return (UseList<? extends List<Enum<? extends Enum<?>>>>) isSubtype(arg);
     }
 
     @TestSubtype(suppressGetSupertype = true, suppressGetSubtype = true)
-    public Iterable<Enum<?>> listOfEnumsWithExplicitBoundIsSubtypeOfIterableOfEnumWithImplicitBound(
+    public List<Enum<? extends Enum<?>>> listOfEnumsWithExplicitBoundIsSubtypeOfIterableOfEnumWithImplicitBound(
         List<Enum<? extends Enum<?>>> listOfEnums) {
       return isSubtype(listOfEnums);
     }
 
     @TestSubtype(suppressGetSupertype = true, suppressGetSubtype = true)
-    public Iterable<Enum<?>> nestedExplicitEnumBoundIsSubtypeOfImplicitEnumBound(
+    public List<Enum<? extends Enum<? extends Enum<?>>>> nestedExplicitEnumBoundIsSubtypeOfImplicitEnumBound(
         List<Enum<? extends Enum<? extends Enum<?>>>> listOfEnums) {
       return isSubtype(listOfEnums);
     }
 
     @TestSubtype(suppressGetSupertype = true, suppressGetSubtype = true)
-    public Iterable<Enum<? extends Enum<? extends Enum<?>>>>
+    public List<Enum<?>>
         implicitEnumBoundIsSubtypeOfNestedExplicitEnumBound(List<Enum<?>> listOfEnums) {
       return isSubtype(listOfEnums);
     }
 
     @TestSubtype(suppressGetSupertype = true, suppressGetSubtype = true)
-    public Iterable<Enum<? extends Enum<?>>>
+    public List<Enum<?>>
         listOfEnumsWithImplicitBoundIsSubtypeOfIterableOfEnumWithExplicitBound(
             List<Enum<?>> listOfEnums) {
       return isSubtype(listOfEnums);
@@ -332,21 +332,21 @@ public class TypeTokenSubtypeTest extends TestCase {
     }
 
     @TestSubtype(suppressGetSupertype = true, suppressGetSubtype = true)
-    public List<List<? extends Iterable<UseList<? extends List<?>>>>>
+    public List<List<? extends Iterable<UseList<?>>>>
         wildcardBoundUsesParameterizedTypeWithImplicitBound(
             List<List<? extends Iterable<UseList<?>>>> arg) {
       return isSubtype(arg);
     }
 
     @TestSubtype(suppressGetSupertype = true, suppressGetSubtype = true)
-    public List<List<? extends Iterable<Enum<? extends Enum<?>>>>>
+    public List<List<? extends Iterable<Enum<?>>>>
         wildcardBoundUsesRecursiveParameterizedTypeWithImplicitBound(
             List<List<? extends Iterable<Enum<?>>>> arg) {
       return isSubtype(arg);
     }
 
     @TestSubtype(suppressGetSupertype = true, suppressGetSubtype = true)
-    public List<List<? extends Iterable<MyTypeBoundUsesImplicitBound<? extends Enum<?>>>>>
+    public List<List<? extends Iterable<MyTypeBoundUsesImplicitBound<?>>>>
         wildcardBoundUsesParameterizedTypeDefinedWithImplicitBound(
             List<List<? extends Iterable<MyTypeBoundUsesImplicitBound<?>>>> arg) {
       return isSubtype(arg);
@@ -360,14 +360,14 @@ public class TypeTokenSubtypeTest extends TestCase {
     }
 
     @TestSubtype(suppressGetSupertype = true, suppressGetSubtype = true)
-    public Iterable<UseSerializableIterable<? extends Iterable<?>>>
+    public List<UseSerializableIterable<?>>
         wildcardOfImplicitBoundedIsSubtypeOfWildcardOfExplicitlyPartialBounded(
             List<UseSerializableIterable<?>> withImplicitBounds) {
       return isSubtype(withImplicitBounds);
     }
 
     @TestSubtype(suppressGetSupertype = true, suppressGetSubtype = true)
-    public Iterable<UseList<? extends Iterable<?>>> useListOfIterableWildcard(
+    public List<UseList<?>> useListOfIterableWildcard(
         List<UseList<?>> withImplicitBounds) {
       return isSubtype(withImplicitBounds);
     }
