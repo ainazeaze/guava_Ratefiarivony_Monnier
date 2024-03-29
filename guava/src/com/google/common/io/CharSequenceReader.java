@@ -29,6 +29,12 @@ import javax.annotation.CheckForNull;
 /**
  * A {@link Reader} that reads the characters in a {@link CharSequence}. Like {@code StringReader},
  * but works with any {@link CharSequence}.
+ * 
+ *  * <p>This class provides methods to read characters from a {@link CharSequence} as if it were a
+ * stream.
+ * 
+ * * <p>Note: This class is {@link J2ktIncompatible J2KT incompatible} and {@link GwtIncompatible
+ * GWT incompatible}.
  *
  * @author Colin Decker
  */
@@ -73,7 +79,16 @@ final class CharSequenceReader extends Reader {
    *   method, while it would avoid the instance field `seq` would still access the instance field
    *   `pos`.
    */
-
+  
+  
+  /**
+   * Reads characters into the specified buffer. This method implements the abstract method defined
+   * in the {@link Reader} class.
+   *
+   * @param target the buffer to read characters into
+   * @return the number of characters read, or -1 if the end of the stream has been reached
+   * @throws IOException if an I/O error occurs
+   */
   @Override
   public synchronized int read(CharBuffer target) throws IOException {
     checkNotNull(target);
@@ -88,14 +103,33 @@ final class CharSequenceReader extends Reader {
     }
     return charsToRead;
   }
-
+  
+  
+  /**
+   * Reads a single character. This method implements the abstract method defined in the {@link
+   * Reader} class.
+   *
+   * @return the character read, or -1 if the end of the stream has been reached
+   * @throws IOException if an I/O error occurs
+   */
   @Override
   public synchronized int read() throws IOException {
     checkOpen();
     requireNonNull(seq); // safe because of checkOpen
     return hasRemaining() ? seq.charAt(pos++) : -1;
   }
-
+  
+  
+  /**
+   * Reads characters into a portion of an array. This method implements the abstract method defined
+   * in the {@link Reader} class.
+   *
+   * @param cbuf the buffer into which the data is read
+   * @param off the start offset in the destination array {@code cbuf}
+   * @param len the maximum number of characters to read
+   * @return the total number of characters read into the buffer, or -1 if there is no more data
+   * @throws IOException if an I/O error occurs
+   */
   @Override
   public synchronized int read(char[] cbuf, int off, int len) throws IOException {
     checkPositionIndexes(off, off + len, cbuf.length);
@@ -110,7 +144,16 @@ final class CharSequenceReader extends Reader {
     }
     return charsToRead;
   }
-
+  
+  
+  /**
+   * Skips characters. This method implements the abstract method defined in the {@link Reader}
+   * class.
+   *
+   * @param n the number of characters to skip
+   * @return the number of characters actually skipped
+   * @throws IOException if an I/O error occurs
+   */
   @Override
   public synchronized long skip(long n) throws IOException {
     checkArgument(n >= 0, "n (%s) may not be negative", n);
@@ -119,31 +162,70 @@ final class CharSequenceReader extends Reader {
     pos += charsToSkip;
     return charsToSkip;
   }
-
+  
+  
+  /**
+   * Tells whether this reader is ready to be read. This method implements the abstract method
+   * defined in the {@link Reader} class.
+   *
+   * @return {@code true} if the reader is ready to be read; {@code false} otherwise
+   * @throws IOException if an I/O error occurs
+   */
   @Override
   public synchronized boolean ready() throws IOException {
     checkOpen();
     return true;
   }
-
+  
+  
+  /**
+   * Indicates whether this reader supports the {@code mark()} and {@code reset()} methods. This
+   * method implements the abstract method defined in the {@link Reader} class.
+   *
+   * @return {@code true} if this reader supports the {@code mark()} and {@code reset()} methods;
+   *     {@code false} otherwise
+   */
   @Override
   public boolean markSupported() {
     return true;
   }
-
+  
+  
+  /**
+   * Marks the present position in the stream. This method implements the abstract method defined in
+   * the {@link Reader} class.
+   *
+   * @param readAheadLimit the maximum limit of characters that can be read before the mark becomes
+   *     invalid
+   * @throws IllegalArgumentException if {@code readAheadLimit} is negative
+   * @throws IOException if an I/O error occurs
+   */
   @Override
   public synchronized void mark(int readAheadLimit) throws IOException {
     checkArgument(readAheadLimit >= 0, "readAheadLimit (%s) may not be negative", readAheadLimit);
     checkOpen();
     mark = pos;
   }
-
+  
+  
+  /**
+   * Resets the stream to the most recent mark. This method implements the abstract method defined
+   * in the {@link Reader} class.
+   *
+   * @throws IOException if the stream has been closed or if no mark has been set
+   */
   @Override
   public synchronized void reset() throws IOException {
     checkOpen();
     pos = mark;
   }
-
+  
+  /**
+   * Closes the reader. This method implements the abstract method defined in the {@link Reader}
+   * class.
+   *
+   * @throws IOException if an I/O error occurs
+   */
   @Override
   public synchronized void close() throws IOException {
     seq = null;
