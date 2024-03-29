@@ -406,19 +406,19 @@ public final class Ascii {
    */
   public static String toLowerCase(String string) {
     int length = string.length();
+    StringBuilder builder = new StringBuilder(length);
+    boolean hasUpperCase= false;
+    
     for (int i = 0; i < length; i++) {
-      if (isUpperCase(string.charAt(i))) {
-        char[] chars = string.toCharArray();
-        for (; i < length; i++) {
-          char c = chars[i];
-          if (isUpperCase(c)) {
-            chars[i] = (char) (c ^ CASE_MASK);
-          }
-        }
-        return String.valueOf(chars);
-      }
+    	char c = string.charAt(i);
+    	if (Character.isUpperCase(c)) {
+    		hasUpperCase = true;
+    		builder.append(Ascii.toLowerCase(c));
+    	} else {
+    		builder.append(c);
+    	}
     }
-    return string;
+    return hasUpperCase ? builder.toString() : string; 
   }
 
   /**
