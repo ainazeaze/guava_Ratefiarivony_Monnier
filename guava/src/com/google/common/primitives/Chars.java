@@ -270,10 +270,7 @@ public final class Chars {
    * @return a single array containing all the values from the source arrays, in order
    */
   public static char[] concat(char[]... arrays) {
-    int length = 0;
-    for (char[] array : arrays) {
-      length += array.length;
-    }
+    int length = Arrays.stream(arrays).mapToInt(arr -> arr.length).sum();
     char[] result = new char[length];
     int pos = 0;
     for (char[] array : arrays) {
