@@ -613,7 +613,7 @@ public final class Ascii {
 	        if (c1 == c2) {
 	            continue;
 	        }
-	        if (isAsciiAlpha(c1) && isAsciiAlpha(c2) && (toLowerCaseAscii(c1) == toLowerCaseAscii(c2))) {
+	        if (isAsciiAlpha(c1) && isAsciiAlpha(c2) && (toLowerCase(c1) == toLowerCase(c2))) {
 	            // Convert both characters to lowercase and compare again
 	                continue;
 	          }
@@ -626,15 +626,7 @@ public final class Ascii {
 
 	// Utility method to check if a character is ASCII alphabetic
 	private static boolean isAsciiAlpha(char c) {
-	    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
-	}
-
-	// Utility method to convert a character to lowercase in ASCII
-	private static char toLowerCaseAscii(char c) {
-	    if (c >= 'A' && c <= 'Z') {
-	        return (char) (c + ('a' - 'A'));
-	    }
-	    return c;
+	    return isLowerCase(c) || isUpperCase(c);
 	}
 
 }
