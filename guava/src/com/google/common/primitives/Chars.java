@@ -520,10 +520,10 @@ public final class Chars {
     int length = toIndex - fromIndex;
     // Obtain m = (-distance mod length), a non-negative value less than "length". This is how many
     // places left to rotate.
-    int m = -distance % length;
-    m = (m < 0) ? m + length : m;
+    int placeToRotate = -distance % length;
+    placeToRotate = (placeToRotate < 0) ? placeToRotate + length : placeToRotate;
     // The current index of what will become the first element of the rotated section.
-    int newFirstIndex = m + fromIndex;
+    int newFirstIndex = placeToRotate + fromIndex;
     if (newFirstIndex == fromIndex) {
       return;
     }
