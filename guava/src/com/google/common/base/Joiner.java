@@ -111,16 +111,15 @@ public class Joiner {
    */
   @CanIgnoreReturnValue
   public <A extends Appendable> A appendTo(A appendable, Iterator<? extends @Nullable Object> parts)
-      throws IOException {
-    checkNotNull(appendable);
-    if (parts.hasNext()) {
-      appendable.append(toString(parts.next()));
-      while (parts.hasNext()) {
-        appendable.append(separator);
-        appendable.append(toString(parts.next()));
-      }
-    }
-    return appendable;
+		  throws IOException {
+	  checkNotNull(appendable);
+	  while (parts.hasNext()) {
+		  appendable.append(toString(parts.next()));
+		  if (parts.hasNext()) {
+			  appendable.append(separator);
+		  }
+	  }
+	  return appendable;
   }
 
   /**
