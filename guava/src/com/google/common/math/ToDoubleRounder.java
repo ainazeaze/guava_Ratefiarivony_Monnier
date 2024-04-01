@@ -46,110 +46,159 @@ abstract class ToDoubleRounder<X extends Number & Comparable<X>> {
 
   /** Rounds {@code x} to a {@code double}. */
   final double roundToDouble(X x, RoundingMode mode) {
-    checkNotNull(x, "x");
-    checkNotNull(mode, "mode");
-    double roundArbitrarily = roundToDoubleArbitrarily(x);
-    if (Double.isInfinite(roundArbitrarily)) {
-      switch (mode) {
-        case DOWN:
-        case HALF_EVEN:
-        case HALF_DOWN:
-        case HALF_UP:
-          return Double.MAX_VALUE * sign(x);
-        case FLOOR:
-          return (roundArbitrarily == Double.POSITIVE_INFINITY)
+	  checkNotNull(x, "x");
+	  checkNotNull(mode, "mode");
+	  double roundArbitrarily = roundToDoubleArbitrarily(x);
+	  if (Double.isInfinite(roundArbitrarily)) {
+		  return handleInfiniteCase(roundArbitrarily, mode, x);
+	  }
+	  X roundArbitrarilyAsX = toX(roundArbitrarily, RoundingMode.UNNECESSARY);
+	  int cmpXToRoundArbitrarily = x.compareTo(roundArbitrarilyAsX);
+	  return handleFiniteCase(roundArbitrarily, cmpXToRoundArbitrarily, mode, x);
+  }
+
+  private double handleInfiniteCase(double roundArbitrarily, RoundingMode mode, X x) {
+	  switch (mode) {
+	  case DOWN:
+	  case HALF_EVEN:
+	  case HALF_DOWN:
+	  case HALF_UP:
+		  return handleInfiniteWithSign(roundArbitrarily, x);
+	  case FLOOR:
+		  return handleFloorCase(roundArbitrarily);
+	  case CEILING:
+		  return handleCeilingCase(roundArbitrarily);
+	  case UP:
+		  return roundArbitrarily;
+	  case UNNECESSARY:
+		  throw new ArithmeticException(x + " cannot be represented precisely as a double");
+	  default:
+		  throw new AssertionError("Unsupported rounding mode: " + mode);
+	  }
+  }
+
+  private double handleFiniteCase(double roundArbitrarily, int cmpXToRoundArbitrarily, RoundingMode mode, X x) {
+	  switch (mode) {
+	  case UNNECESSARY:
+		  return handleUnnecessaryCase(roundArbitrarily, cmpXToRoundArbitrarily);
+	  case FLOOR:
+		  return handleFloorCase(roundArbitrarily, cmpXToRoundArbitrarily);
+	  case CEILING:
+		  return handleCeilingCase(roundArbitrarily, cmpXToRoundArbitrarily);
+	  case DOWN:
+		  return handleDownCase(roundArbitrarily, cmpXToRoundArbitrarily, x);
+	  case UP:
+		  return handleUpCase(roundArbitrarily, cmpXToRoundArbitrarily, x);
+	  case HALF_DOWN:
+	  case HALF_UP:
+	  case HALF_EVEN:
+		  return handleHalfCase(roundArbitrarily, cmpXToRoundArbitrarily, mode, x);
+	  default:
+		  throw new AssertionError("Unsupported rounding mode: " + mode);
+	  }
+  }
+
+  private double handleInfiniteWithSign(double roundArbitrarily, X x) {
+	  switch (sign(x)) {
+	  case 1:
+		  return Double.MAX_VALUE;
+	  case -1:
+		  return -Double.MAX_VALUE;
+	  case 0:
+	  default:
+		  throw new AssertionError("Invalid sign: " + sign(x));
+	  }
+  }
+  private double handleFloorCase(double roundArbitrarily) {
+      return (roundArbitrarily == Double.POSITIVE_INFINITY)
               ? Double.MAX_VALUE
               : Double.NEGATIVE_INFINITY;
-        case CEILING:
-          return (roundArbitrarily == Double.POSITIVE_INFINITY)
+  }
+
+  private double handleCeilingCase(double roundArbitrarily) {
+      return (roundArbitrarily == Double.POSITIVE_INFINITY)
               ? Double.POSITIVE_INFINITY
               : -Double.MAX_VALUE;
-        case UP:
-          return roundArbitrarily;
-        case UNNECESSARY:
-          throw new ArithmeticException(x + " cannot be represented precisely as a double");
+  }
+
+  private double handleUnnecessaryCase(double roundArbitrarily, int cmpXToRoundArbitrarily) {
+      checkRoundingUnnecessary(cmpXToRoundArbitrarily == 0);
+      return roundArbitrarily;
+  }
+
+  private double handleFloorCase(double roundArbitrarily, int cmpXToRoundArbitrarily) {
+      return (cmpXToRoundArbitrarily >= 0)
+              ? roundArbitrarily
+              : DoubleUtils.nextDown(roundArbitrarily);
+  }
+
+  private double handleCeilingCase(double roundArbitrarily, int cmpXToRoundArbitrarily) {
+      return (cmpXToRoundArbitrarily <= 0) ? roundArbitrarily : Math.nextUp(roundArbitrarily);
+  }
+
+  private double handleDownCase(double roundArbitrarily, int cmpXToRoundArbitrarily, X x) {
+      if (sign(x) >= 0) {
+          return (cmpXToRoundArbitrarily >= 0)
+                  ? roundArbitrarily
+                  : DoubleUtils.nextDown(roundArbitrarily);
+      } else {
+          return (cmpXToRoundArbitrarily <= 0) ? roundArbitrarily : Math.nextUp(roundArbitrarily);
       }
-    }
-    X roundArbitrarilyAsX = toX(roundArbitrarily, RoundingMode.UNNECESSARY);
-    int cmpXToRoundArbitrarily = x.compareTo(roundArbitrarilyAsX);
-    switch (mode) {
-      case UNNECESSARY:
-        checkRoundingUnnecessary(cmpXToRoundArbitrarily == 0);
-        return roundArbitrarily;
-      case FLOOR:
-        return (cmpXToRoundArbitrarily >= 0)
-            ? roundArbitrarily
-            : DoubleUtils.nextDown(roundArbitrarily);
-      case CEILING:
-        return (cmpXToRoundArbitrarily <= 0) ? roundArbitrarily : Math.nextUp(roundArbitrarily);
-      case DOWN:
-        if (sign(x) >= 0) {
-          return (cmpXToRoundArbitrarily >= 0)
-              ? roundArbitrarily
-              : DoubleUtils.nextDown(roundArbitrarily);
-        } else {
-          return (cmpXToRoundArbitrarily <= 0) ? roundArbitrarily : Math.nextUp(roundArbitrarily);
-        }
-      case UP:
-        if (sign(x) >= 0) {
-          return (cmpXToRoundArbitrarily <= 0) ? roundArbitrarily : Math.nextUp(roundArbitrarily);
-        } else {
-          return (cmpXToRoundArbitrarily >= 0)
-              ? roundArbitrarily
-              : DoubleUtils.nextDown(roundArbitrarily);
-        }
-      case HALF_DOWN:
-      case HALF_UP:
-      case HALF_EVEN:
-        {
-          X roundFloor;
-          double roundFloorAsDouble;
-          X roundCeiling;
-          double roundCeilingAsDouble;
+  }
 
-          if (cmpXToRoundArbitrarily >= 0) {
-            roundFloorAsDouble = roundArbitrarily;
-            roundFloor = roundArbitrarilyAsX;
-            roundCeilingAsDouble = Math.nextUp(roundArbitrarily);
-            if (roundCeilingAsDouble == Double.POSITIVE_INFINITY) {
+  private double handleUpCase(double roundArbitrarily, int cmpXToRoundArbitrarily, X x) {
+      if (sign(x) >= 0) {
+          return (cmpXToRoundArbitrarily <= 0) ? roundArbitrarily : Math.nextUp(roundArbitrarily);
+      } else {
+          return (cmpXToRoundArbitrarily >= 0)
+                  ? roundArbitrarily
+                  : DoubleUtils.nextDown(roundArbitrarily);
+      }
+  }
+
+  private double handleHalfCase(double roundArbitrarily, int cmpXToRoundArbitrarily, RoundingMode mode, X x) {
+      double roundFloorAsDouble;
+      double roundCeilingAsDouble;
+
+      if (cmpXToRoundArbitrarily >= 0) {
+          roundFloorAsDouble = roundArbitrarily;
+          roundCeilingAsDouble = Math.nextUp(roundArbitrarily);
+          if (roundCeilingAsDouble == Double.POSITIVE_INFINITY) {
               return roundFloorAsDouble;
-            }
-            roundCeiling = toX(roundCeilingAsDouble, RoundingMode.CEILING);
-          } else {
-            roundCeilingAsDouble = roundArbitrarily;
-            roundCeiling = roundArbitrarilyAsX;
-            roundFloorAsDouble = DoubleUtils.nextDown(roundArbitrarily);
-            if (roundFloorAsDouble == Double.NEGATIVE_INFINITY) {
+          }
+      } else {
+          roundCeilingAsDouble = roundArbitrarily;
+          roundFloorAsDouble = DoubleUtils.nextDown(roundArbitrarily);
+          if (roundFloorAsDouble == Double.NEGATIVE_INFINITY) {
               return roundCeilingAsDouble;
-            }
-            roundFloor = toX(roundFloorAsDouble, RoundingMode.FLOOR);
           }
+      }
 
-          X deltaToFloor = minus(x, roundFloor);
-          X deltaToCeiling = minus(roundCeiling, x);
-          int diff = deltaToFloor.compareTo(deltaToCeiling);
-          if (diff < 0) { // closer to floor
-            return roundFloorAsDouble;
-          } else if (diff > 0) { // closer to ceiling
-            return roundCeilingAsDouble;
-          }
-          // halfway between the representable values; do the half-whatever logic
-          switch (mode) {
-            case HALF_EVEN:
-              // roundFloorAsDouble and roundCeilingAsDouble are neighbors, so precisely
+      X roundFloor = toX(roundFloorAsDouble, RoundingMode.FLOOR);
+      X roundCeiling = toX(roundCeilingAsDouble, RoundingMode.CEILING);
+
+      X deltaToFloor = minus(x, roundFloor);
+      X deltaToCeiling = minus(roundCeiling, x);
+      int diff = deltaToFloor.compareTo(deltaToCeiling);
+      if (diff < 0) { // closer to floor
+          return roundFloorAsDouble;
+      } else if (diff > 0) { // closer to ceiling
+          return roundCeilingAsDouble;
+      }
+      // halfway between the representable values; do the half-whatever logic
+      switch (mode) {
+          case HALF_EVEN:
+        	  // roundFloorAsDouble and roundCeilingAsDouble are neighbors, so precisely
               // one of them should have an even long representation
               return ((Double.doubleToRawLongBits(roundFloorAsDouble) & 1L) == 0)
-                  ? roundFloorAsDouble
-                  : roundCeilingAsDouble;
-            case HALF_DOWN:
+                      ? roundFloorAsDouble
+                      : roundCeilingAsDouble;
+          case HALF_DOWN:
               return (sign(x) >= 0) ? roundFloorAsDouble : roundCeilingAsDouble;
-            case HALF_UP:
+          case HALF_UP:
               return (sign(x) >= 0) ? roundCeilingAsDouble : roundFloorAsDouble;
-            default:
+          default:
               throw new AssertionError("impossible");
-          }
-        }
-    }
-    throw new AssertionError("impossible");
+      }
   }
 }
