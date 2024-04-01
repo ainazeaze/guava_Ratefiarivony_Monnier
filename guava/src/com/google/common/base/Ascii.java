@@ -613,18 +613,16 @@ public final class Ascii {
 	        if (c1 == c2) {
 	            continue;
 	        }
-	        if (isAsciiAlpha(c1) && isAsciiAlpha(c2)) {
+	        if (isAsciiAlpha(c1) && isAsciiAlpha(c2) && (toLowerCaseAscii(c1) == toLowerCaseAscii(c2))) {
 	            // Convert both characters to lowercase and compare again
-	            if (toLowerCaseAscii(c1) != toLowerCaseAscii(c2)) {
-	                return false;
-	            }
-	        } else {
-	            // If characters are not ASCII alphabetic, compare them directly
-	            return false; 
+	                continue;
+	          }
+	           // If characters are not ASCII alphabetic, compare them directly
+	         return false; 
 	        }
-	    }
 	    return true;
 	}
+  
 
 	// Utility method to check if a character is ASCII alphabetic
 	private static boolean isAsciiAlpha(char c) {
