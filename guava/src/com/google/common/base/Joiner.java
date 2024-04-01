@@ -143,7 +143,7 @@ public class Joiner {
       @CheckForNull Object second,
       @Nullable Object... rest)
       throws IOException {
-    return appendTo(appendable, iterable(first, second, rest));
+    return appendTo(appendable, createIterable(first, second, rest));
   }
 
   /**
@@ -198,7 +198,7 @@ public class Joiner {
       @CheckForNull Object first,
       @CheckForNull Object second,
       @Nullable Object... rest) {
-    return appendTo(builder, iterable(first, second, rest));
+    return appendTo(builder, createIterable(first, second, rest));
   }
 
   /**
@@ -235,7 +235,7 @@ public class Joiner {
    */
   public final String join(
       @CheckForNull Object first, @CheckForNull Object second, @Nullable Object... rest) {
-    return join(iterable(first, second, rest));
+    return join(createIterable(first, second, rest));
   }
 
   /**
@@ -492,7 +492,7 @@ public class Joiner {
     return (part instanceof CharSequence) ? (CharSequence) part : part.toString();
   }
 
-  private static Iterable<@Nullable Object> iterable(
+  private static Iterable<@Nullable Object> createIterable(
       @CheckForNull Object first, @CheckForNull Object second, @Nullable Object[] rest) {
     checkNotNull(rest);
     return new AbstractList<@Nullable Object>() {
