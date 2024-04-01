@@ -149,18 +149,9 @@ public final class Ints extends IntsMethodsForWeb {
    *     such index exists.
    */
   public static int indexOf(int[] array, int target) {
-    return indexOf(array, target, 0, array.length);
+    return Ints.findIndex(array, target, 0, array.length, false);
   }
 
-  // TODO(kevinb): consider making this public
-  private static int indexOf(int[] array, int target, int start, int end) {
-    for (int i = start; i < end; i++) {
-      if (array[i] == target) {
-        return i;
-      }
-    }
-    return -1;
-  }
 
   /**
    * Returns the start position of the first occurrence of the specified {@code target} within
@@ -200,18 +191,38 @@ public final class Ints extends IntsMethodsForWeb {
    *     such index exists.
    */
   public static int lastIndexOf(int[] array, int target) {
-    return lastIndexOf(array, target, 0, array.length);
+    return Ints.findIndex(array, target, 0, array.length, true);
   }
 
-  // TODO(kevinb): consider making this public
-  private static int lastIndexOf(int[] array, int target, int start, int end) {
-    for (int i = end - 1; i >= start; i--) {
-      if (array[i] == target) {
-        return i;
+  /**
+   * Searches for the index of the first occurrence of the specified element within the specified range of the given array.
+   * If the element is found, returns the index of the first occurrence.
+   * Otherwise, returns -1.
+   *
+   * @param arr the array to search for the element
+   * @param element the element to search for
+   * @param start the starting index of the range (inclusive)
+   * @param end the ending index of the range (exclusive)
+   * @param searchFromEnd true to search from the end of the range, false to search from the beginning
+   * @return the index of the first occurrence of the element in the range, or -1 if the element is not found
+   */
+  private static int findIndex(int[] arr, int element, int start, int end, boolean searchFromEnd) {
+      if (searchFromEnd) {
+          for (int i = end - 1; i >= start; i--) {
+              if (arr[i] == element) {
+                  return i;
+              }
+          }
+      } else {
+          for (int i = start; i < end; i++) {
+              if (arr[i] == element) {
+                  return i;
+              }
+          }
       }
-    }
-    return -1;
+      return -1; // Element not found
   }
+
 
   /**
    * Returns the least value present in {@code array}.
@@ -678,14 +689,14 @@ public final class Ints extends IntsMethodsForWeb {
     @Override
     public boolean contains(@CheckForNull Object target) {
       // Overridden to prevent a ton of boxing
-      return (target instanceof Integer) && Ints.indexOf(array, (Integer) target, start, end) != -1;
+      return (target instanceof Integer) && Ints.findIndex(array, (Integer) target, start, end, false) != -1;
     }
 
     @Override
     public int indexOf(@CheckForNull Object target) {
       // Overridden to prevent a ton of boxing
       if (target instanceof Integer) {
-        int i = Ints.indexOf(array, (Integer) target, start, end);
+        int i = Ints.findIndex(array, (Integer) target, start, end, false);
         if (i >= 0) {
           return i - start;
         }
@@ -697,7 +708,7 @@ public final class Ints extends IntsMethodsForWeb {
     public int lastIndexOf(@CheckForNull Object target) {
       // Overridden to prevent a ton of boxing
       if (target instanceof Integer) {
-        int i = Ints.lastIndexOf(array, (Integer) target, start, end);
+        int i = Ints.findIndex(array, (Integer) target, start, end, true);
         if (i >= 0) {
           return i - start;
         }
