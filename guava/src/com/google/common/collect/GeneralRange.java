@@ -193,50 +193,53 @@ final class GeneralRange<T extends @Nullable Object> implements Serializable {
    */
   @SuppressWarnings("nullness") // TODO(cpovirk): Add casts as needed. Will be noisy and annoying...
   GeneralRange<T> intersect(GeneralRange<T> other) {
-    checkNotNull(other);
-    checkArgument(comparator.equals(other.comparator));
+	  checkNotNull(other);
+	  checkArgument(comparator.equals(other.comparator));
 
-    boolean hasLowBound = this.hasLowerBound;
-    T lowEnd = getLowerEndpoint();
-    BoundType lowType = getLowerBoundType();
-    if (!hasLowerBound()) {
-      hasLowBound = other.hasLowerBound;
-      lowEnd = other.getLowerEndpoint();
-      lowType = other.getLowerBoundType();
-    } else if (other.hasLowerBound()) {
-      int cmp = comparator.compare(getLowerEndpoint(), other.getLowerEndpoint());
-      if (cmp < 0 || (cmp == 0 && other.getLowerBoundType() == OPEN)) {
-        lowEnd = other.getLowerEndpoint();
-        lowType = other.getLowerBoundType();
-      }
-    }
+	  GeneralRange<T> result = createIntersectionWithLowerBound(other);
+	  result = result.createIntersectionWithUpperBound(other);
 
-    boolean hasUpBound = this.hasUpperBound;
-    T upEnd = getUpperEndpoint();
-    BoundType upType = getUpperBoundType();
-    if (!hasUpperBound()) {
-      hasUpBound = other.hasUpperBound;
-      upEnd = other.getUpperEndpoint();
-      upType = other.getUpperBoundType();
-    } else if (other.hasUpperBound()) {
-      int cmp = comparator.compare(getUpperEndpoint(), other.getUpperEndpoint());
-      if (cmp > 0 || (cmp == 0 && other.getUpperBoundType() == OPEN)) {
-        upEnd = other.getUpperEndpoint();
-        upType = other.getUpperBoundType();
-      }
-    }
+	  return result;
+  }
 
-    if (hasLowBound && hasUpBound) {
-      int cmp = comparator.compare(lowEnd, upEnd);
-      if (cmp > 0 || (cmp == 0 && lowType == OPEN && upType == OPEN)) {
-        // force allowed empty range
-        lowEnd = upEnd;
-        lowType = OPEN;
-        upType = CLOSED;
-      }
-    }
+  private GeneralRange<T> createIntersectionWithLowerBound(GeneralRange<T> other) {
+	  boolean hasLowBound = this.hasLowerBound;
+	  T lowEnd = getLowerEndpoint();
+	  BoundType lowType = getLowerBoundType();
 
-    return new GeneralRange<>(comparator, hasLowBound, lowEnd, lowType, hasUpBound, upEnd, upType);
+	  if (!hasLowerBound()) {
+		  hasLowBound = other.hasLowerBound;
+		  lowEnd = other.getLowerEndpoint();
+		  lowType = other.getLowerBoundType();
+	  } else if (other.hasLowerBound()) {
+		  int cmp = comparator.compare(getLowerEndpoint(), other.getLowerEndpoint());
+		  if (cmp < 0 || (cmp == 0 && other.getLowerBoundType() == OPEN)) {
+			  lowEnd = other.getLowerEndpoint();
+			  lowType = other.getLowerBoundType();
+		  }
+	  }
+
+	  return new GeneralRange<>(comparator, hasLowBound, lowEnd, lowType, false, null, OPEN);
+  }
+
+  private GeneralRange<T> createIntersectionWithUpperBound(GeneralRange<T> other) {
+	  boolean hasUpBound = this.hasUpperBound;
+	  T upEnd = getUpperEndpoint();
+	  BoundType upType = getUpperBoundType();
+
+	  if (!hasUpperBound()) {
+		  hasUpBound = other.hasUpperBound;
+		  upEnd = other.getUpperEndpoint();
+		  upType = other.getUpperBoundType();
+	  } else if (other.hasUpperBound()) {
+		  int cmp = comparator.compare(getUpperEndpoint(), other.getUpperEndpoint());
+		  if (cmp > 0 || (cmp == 0 && other.getUpperBoundType() == OPEN)) {
+			  upEnd = other.getUpperEndpoint();
+			  upType = other.getUpperBoundType();
+		  }
+	  }
+
+	  return new GeneralRange<>(comparator, false, null, OPEN, hasUpBound, upEnd, upType);
   }
 
   @Override
