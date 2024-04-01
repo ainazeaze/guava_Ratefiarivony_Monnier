@@ -600,29 +600,44 @@ public final class Ascii {
    */
   public static boolean equalsIgnoreCase(CharSequence s1, CharSequence s2) {
     // Calling length() is the null pointer check (so do it before we can exit early).
-    int length = s1.length();
-    if (s1 == s2) {
-      return true;
-    }
-    if (length != s2.length()) {
-      return false;
-    }
-    for (int i = 0; i < length; i++) {
-      char c1 = s1.charAt(i);
-      char c2 = s2.charAt(i);
-      if (c1 == c2) {
-        continue;
-      }
-      int alphaIndex = getAlphaIndex(c1);
-      // This was also benchmarked using '&' to avoid branching (but always evaluate the rhs),
-      // however this showed no obvious improvement.
-      if (alphaIndex < 26 && alphaIndex == getAlphaIndex(c2)) {
-        continue;
-      }
-      return false;
-    }
-    return true;
-  }
+	  int length = s1.length();
+	    if (s1 == s2) {
+	        return true;
+	    }
+	    if (length != s2.length()) {
+	        return false;
+	    }
+	    for (int i = 0; i < length; i++) {
+	        char c1 = s1.charAt(i);
+	        char c2 = s2.charAt(i);
+	        if (c1 == c2) {
+	            continue;
+	        }
+	        if (isAsciiAlpha(c1) && isAsciiAlpha(c2)) {
+	            // Convert both characters to lowercase and compare again
+	            if (toLowerCaseAscii(c1) != toLowerCaseAscii(c2)) {
+	                return false;
+	            }
+	        } else {
+	            // If characters are not ASCII alphabetic, compare them directly
+	            return false; 
+	        }
+	    }
+	    return true;
+	}
+
+	// Utility method to check if a character is ASCII alphabetic
+	private static boolean isAsciiAlpha(char c) {
+	    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+	}
+
+	// Utility method to convert a character to lowercase in ASCII
+	private static char toLowerCaseAscii(char c) {
+	    if (c >= 'A' && c <= 'Z') {
+	        return (char) (c + ('a' - 'A'));
+	    }
+	    return c;
+	}
 
   /**
    * Returns the non-negative index value of the alpha character {@code c}, regardless of case. Ie,
