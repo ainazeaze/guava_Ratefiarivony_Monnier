@@ -133,10 +133,10 @@ public final class DoubleMath {
   @J2ktIncompatible
   @GwtIncompatible // #roundIntermediate
   public static int roundToInt(double x, RoundingMode mode) {
-    double z = roundIntermediate(x, mode);
+    double roundedValue = roundIntermediate(x, mode);
     checkInRangeForRoundingInputs(
-        z > MIN_INT_AS_DOUBLE - 1.0 & z < MAX_INT_AS_DOUBLE + 1.0, x, mode);
-    return (int) z;
+    		roundedValue > MIN_INT_AS_DOUBLE - 1.0 & roundedValue < MAX_INT_AS_DOUBLE + 1.0, x, mode);
+    return (int) roundedValue;
   }
 
   private static final double MIN_INT_AS_DOUBLE = -0x1p31;
@@ -159,10 +159,10 @@ public final class DoubleMath {
   @J2ktIncompatible
   @GwtIncompatible // #roundIntermediate
   public static long roundToLong(double x, RoundingMode mode) {
-    double z = roundIntermediate(x, mode);
+    double roundedValue = roundIntermediate(x, mode);
     checkInRangeForRoundingInputs(
-        MIN_LONG_AS_DOUBLE - z < 1.0 & z < MAX_LONG_AS_DOUBLE_PLUS_ONE, x, mode);
-    return (long) z;
+        MIN_LONG_AS_DOUBLE - roundedValue < 1.0 & roundedValue < MAX_LONG_AS_DOUBLE_PLUS_ONE, x, mode);
+    return (long) roundedValue;
   }
 
   private static final double MIN_LONG_AS_DOUBLE = -0x1p63;
