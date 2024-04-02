@@ -173,73 +173,6 @@ public final class InternetDomainName {
   }
 
   /**
-   * The index in the {@link #parts()} list at which the public suffix begins. For example, for the
-   * domain name {@code myblog.blogspot.co.uk}, the value would be 1 (the index of the {@code
-   * blogspot} part). The value is negative (specifically, {@link #NO_SUFFIX_FOUND}) if no public
-   * suffix was found.
-   */
-  private int publicSuffixIndex() {
-    int publicSuffixIndexLocal = publicSuffixIndexCache;
-    if (publicSuffixIndexLocal == SUFFIX_NOT_INITIALIZED) {
-      publicSuffixIndexCache =
-          publicSuffixIndexLocal = findSuffixOfType(Optional.<PublicSuffixType>absent());
-    }
-    return publicSuffixIndexLocal;
-  }
-
-  /**
-   * The index in the {@link #parts()} list at which the registry suffix begins. For example, for
-   * the domain name {@code myblog.blogspot.co.uk}, the value would be 2 (the index of the {@code
-   * co} part). The value is negative (specifically, {@link #NO_SUFFIX_FOUND}) if no registry suffix
-   * was found.
-   */
-  private int registrySuffixIndex() {
-    int registrySuffixIndexLocal = registrySuffixIndexCache;
-    if (registrySuffixIndexLocal == SUFFIX_NOT_INITIALIZED) {
-      registrySuffixIndexCache =
-          registrySuffixIndexLocal = findSuffixOfType(Optional.of(PublicSuffixType.REGISTRY));
-    }
-    return registrySuffixIndexLocal;
-  }
-
-  /**
-   * Returns the index of the leftmost part of the suffix, or -1 if not found. Note that the value
-   * defined as a suffix may not produce {@code true} results from {@link #isPublicSuffix()} or
-   * {@link #isRegistrySuffix()} if the domain ends with an excluded domain pattern such as {@code
-   * "nhs.uk"}.
-   *
-   * <p>If a {@code desiredType} is specified, this method only finds suffixes of the given type.
-   * Otherwise, it finds the first suffix of any type.
-   */
-  private int findSuffixOfType(Optional<PublicSuffixType> desiredType) {
-    int partsSize = parts.size();
-
-    for (int i = 0; i < partsSize; i++) {
-      String ancestorName = DOT_JOINER.join(parts.subList(i, partsSize));
-
-      if (i > 0
-          && matchesType(
-              desiredType, Optional.fromNullable(PublicSuffixPatterns.UNDER.get(ancestorName)))) {
-        return i - 1;
-      }
-
-      if (matchesType(
-          desiredType, Optional.fromNullable(PublicSuffixPatterns.EXACT.get(ancestorName)))) {
-        return i;
-      }
-
-      // Excluded domains (e.g. !nhs.uk) use the next highest
-      // domain as the effective public suffix (e.g. uk).
-
-      if (PublicSuffixPatterns.EXCLUDED.containsKey(ancestorName)) {
-        return i + 1;
-      }
-    }
-
-    return NO_SUFFIX_FOUND;
-  }
-
-  /**
    * Returns an instance of {@link InternetDomainName} after lenient validation. Specifically,
    * validation against <a href="http://www.ietf.org/rfc/rfc3490.txt">RFC 3490</a>
    * ("Internationalizing Domain Names in Applications") is skipped, while validation against <a
@@ -262,31 +195,6 @@ public final class InternetDomainName {
     return new InternetDomainName(checkNotNull(domain));
   }
 
-  /**
-   * Validation method used by {@code from} to ensure that the domain name is syntactically valid
-   * according to RFC 1035.
-   *
-   * @return Is the domain name syntactically valid?
-   */
-  private static boolean validateSyntax(List<String> parts) {
-    int lastIndex = parts.size() - 1;
-
-    // Validate the last part specially, as it has different syntax rules.
-
-    if (!validatePart(parts.get(lastIndex), true)) {
-      return false;
-    }
-
-    for (int i = 0; i < lastIndex; i++) {
-      String part = parts.get(i);
-      if (!validatePart(part, false)) {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   private static final CharMatcher DASH_MATCHER = CharMatcher.anyOf("-_");
 
   private static final CharMatcher DIGIT_MATCHER = CharMatcher.inRange('0', '9');
@@ -296,60 +204,6 @@ public final class InternetDomainName {
 
   private static final CharMatcher PART_CHAR_MATCHER =
       DIGIT_MATCHER.or(LETTER_MATCHER).or(DASH_MATCHER);
-
-  /**
-   * Helper method for {@link #validateSyntax(List)}. Validates that one part of a domain name is
-   * valid.
-   *
-   * @param part The domain name part to be validated
-   * @param isFinalPart Is this the final (rightmost) domain part?
-   * @return Whether the part is valid
-   */
-  private static boolean validatePart(String part, boolean isFinalPart) {
-
-    // These tests could be collapsed into one big boolean expression, but
-    // they have been left as independent tests for clarity.
-
-    if (part.length() < 1 || part.length() > MAX_DOMAIN_PART_LENGTH) {
-      return false;
-    }
-
-    /*
-     * GWT claims to support java.lang.Character's char-classification methods, but it actually only
-     * works for ASCII. So for now, assume any non-ASCII characters are valid. The only place this
-     * seems to be documented is here:
-     * https://groups.google.com/d/topic/google-web-toolkit-contributors/1UEzsryq1XI
-     *
-     * <p>ASCII characters in the part are expected to be valid per RFC 1035, with underscore also
-     * being allowed due to widespread practice.
-     */
-
-    String asciiChars = CharMatcher.ascii().retainFrom(part);
-
-    if (!PART_CHAR_MATCHER.matchesAllOf(asciiChars)) {
-      return false;
-    }
-
-    // No initial or final dashes or underscores.
-
-    if (DASH_MATCHER.matches(part.charAt(0))
-        || DASH_MATCHER.matches(part.charAt(part.length() - 1))) {
-      return false;
-    }
-
-    /*
-     * Note that we allow (in contravention of a strict interpretation of the relevant RFCs) domain
-     * parts other than the last may begin with a digit (for example, "3com.com"). It's important to
-     * disallow an initial digit in the last part; it's the only thing that stops an IPv4 numeric
-     * address like 127.0.0.1 from looking like a valid domain name.
-     */
-
-    if (isFinalPart && DIGIT_MATCHER.matches(part.charAt(0))) {
-      return false;
-    }
-
-    return true;
-  }
 
   /**
    * Returns the individual components of this domain name, normalized to all lower case. For
@@ -588,27 +442,6 @@ public final class InternetDomainName {
   }
 
   /**
-   * Returns the ancestor of the current domain at the given number of levels "higher" (rightward)
-   * in the subdomain list. The number of levels must be non-negative, and less than {@code N-1},
-   * where {@code N} is the number of parts in the domain.
-   *
-   * <p>TODO: Reasonable candidate for addition to public API.
-   */
-  private InternetDomainName ancestor(int levels) {
-    ImmutableList<String> ancestorParts = parts.subList(levels, parts.size());
-
-    // levels equals the number of dots that are getting clipped away, then add the length of each
-    // clipped part to get the length of the leading substring that is being removed.
-    int substringFrom = levels;
-    for (int i = 0; i < levels; i++) {
-      substringFrom += parts.get(i).length();
-    }
-    String ancestorName = name.substring(substringFrom);
-
-    return new InternetDomainName(ancestorName, ancestorParts);
-  }
-
-  /**
    * Creates and returns a new {@code InternetDomainName} by prepending the argument and a dot to
    * the current name. For example, {@code InternetDomainName.from("foo.com").child("www.bar")}
    * returns a new {@code InternetDomainName} with the value {@code www.bar.foo.com}. Only lenient
@@ -653,15 +486,6 @@ public final class InternetDomainName {
     }
   }
 
-  /**
-   * If a {@code desiredType} is specified, returns true only if the {@code actualType} is
-   * identical. Otherwise, returns true as long as {@code actualType} is present.
-   */
-  private static boolean matchesType(
-      Optional<PublicSuffixType> desiredType, Optional<PublicSuffixType> actualType) {
-    return desiredType.isPresent() ? desiredType.equals(actualType) : actualType.isPresent();
-  }
-
   /** Returns the domain name, normalized to all lower case. */
   @Override
   public String toString() {
@@ -690,5 +514,181 @@ public final class InternetDomainName {
   @Override
   public int hashCode() {
     return name.hashCode();
+  }
+  
+  /**
+   * The index in the {@link #parts()} list at which the public suffix begins. For example, for the
+   * domain name {@code myblog.blogspot.co.uk}, the value would be 1 (the index of the {@code
+   * blogspot} part). The value is negative (specifically, {@link #NO_SUFFIX_FOUND}) if no public
+   * suffix was found.
+   */
+  private int publicSuffixIndex() {
+    int publicSuffixIndexLocal = publicSuffixIndexCache;
+    if (publicSuffixIndexLocal == SUFFIX_NOT_INITIALIZED) {
+      publicSuffixIndexCache =
+          publicSuffixIndexLocal = findSuffixOfType(Optional.<PublicSuffixType>absent());
+    }
+    return publicSuffixIndexLocal;
+  }
+
+  /**
+   * The index in the {@link #parts()} list at which the registry suffix begins. For example, for
+   * the domain name {@code myblog.blogspot.co.uk}, the value would be 2 (the index of the {@code
+   * co} part). The value is negative (specifically, {@link #NO_SUFFIX_FOUND}) if no registry suffix
+   * was found.
+   */
+  private int registrySuffixIndex() {
+    int registrySuffixIndexLocal = registrySuffixIndexCache;
+    if (registrySuffixIndexLocal == SUFFIX_NOT_INITIALIZED) {
+      registrySuffixIndexCache =
+          registrySuffixIndexLocal = findSuffixOfType(Optional.of(PublicSuffixType.REGISTRY));
+    }
+    return registrySuffixIndexLocal;
+  }
+
+  /**
+   * Returns the index of the leftmost part of the suffix, or -1 if not found. Note that the value
+   * defined as a suffix may not produce {@code true} results from {@link #isPublicSuffix()} or
+   * {@link #isRegistrySuffix()} if the domain ends with an excluded domain pattern such as {@code
+   * "nhs.uk"}.
+   *
+   * <p>If a {@code desiredType} is specified, this method only finds suffixes of the given type.
+   * Otherwise, it finds the first suffix of any type.
+   */
+  private int findSuffixOfType(Optional<PublicSuffixType> desiredType) {
+    int partsSize = parts.size();
+
+    for (int i = 0; i < partsSize; i++) {
+      String ancestorName = DOT_JOINER.join(parts.subList(i, partsSize));
+
+      if (i > 0
+          && matchesType(
+              desiredType, Optional.fromNullable(PublicSuffixPatterns.UNDER.get(ancestorName)))) {
+        return i - 1;
+      }
+
+      if (matchesType(
+          desiredType, Optional.fromNullable(PublicSuffixPatterns.EXACT.get(ancestorName)))) {
+        return i;
+      }
+
+      // Excluded domains (e.g. !nhs.uk) use the next highest
+      // domain as the effective public suffix (e.g. uk).
+
+      if (PublicSuffixPatterns.EXCLUDED.containsKey(ancestorName)) {
+        return i + 1;
+      }
+    }
+
+    return NO_SUFFIX_FOUND;
+  }
+  
+  /**
+   * Validation method used by {@code from} to ensure that the domain name is syntactically valid
+   * according to RFC 1035.
+   *
+   * @return Is the domain name syntactically valid?
+   */
+  private static boolean validateSyntax(List<String> parts) {
+    int lastIndex = parts.size() - 1;
+
+    // Validate the last part specially, as it has different syntax rules.
+
+    if (!validatePart(parts.get(lastIndex), true)) {
+      return false;
+    }
+
+    for (int i = 0; i < lastIndex; i++) {
+      String part = parts.get(i);
+      if (!validatePart(part, false)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+  
+  /**
+   * Helper method for {@link #validateSyntax(List)}. Validates that one part of a domain name is
+   * valid.
+   *
+   * @param part The domain name part to be validated
+   * @param isFinalPart Is this the final (rightmost) domain part?
+   * @return Whether the part is valid
+   */
+  private static boolean validatePart(String part, boolean isFinalPart) {
+
+    // These tests could be collapsed into one big boolean expression, but
+    // they have been left as independent tests for clarity.
+
+    if (part.length() < 1 || part.length() > MAX_DOMAIN_PART_LENGTH) {
+      return false;
+    }
+
+    /*
+     * GWT claims to support java.lang.Character's char-classification methods, but it actually only
+     * works for ASCII. So for now, assume any non-ASCII characters are valid. The only place this
+     * seems to be documented is here:
+     * https://groups.google.com/d/topic/google-web-toolkit-contributors/1UEzsryq1XI
+     *
+     * <p>ASCII characters in the part are expected to be valid per RFC 1035, with underscore also
+     * being allowed due to widespread practice.
+     */
+
+    String asciiChars = CharMatcher.ascii().retainFrom(part);
+
+    if (!PART_CHAR_MATCHER.matchesAllOf(asciiChars)) {
+      return false;
+    }
+
+    // No initial or final dashes or underscores.
+
+    if (DASH_MATCHER.matches(part.charAt(0))
+        || DASH_MATCHER.matches(part.charAt(part.length() - 1))) {
+      return false;
+    }
+
+    /*
+     * Note that we allow (in contravention of a strict interpretation of the relevant RFCs) domain
+     * parts other than the last may begin with a digit (for example, "3com.com"). It's important to
+     * disallow an initial digit in the last part; it's the only thing that stops an IPv4 numeric
+     * address like 127.0.0.1 from looking like a valid domain name.
+     */
+
+    if (isFinalPart && DIGIT_MATCHER.matches(part.charAt(0))) {
+      return false;
+    }
+
+    return true;
+  }
+  
+  /**
+   * If a {@code desiredType} is specified, returns true only if the {@code actualType} is
+   * identical. Otherwise, returns true as long as {@code actualType} is present.
+   */
+  private static boolean matchesType(
+      Optional<PublicSuffixType> desiredType, Optional<PublicSuffixType> actualType) {
+    return desiredType.isPresent() ? desiredType.equals(actualType) : actualType.isPresent();
+  }
+  
+  /**
+   * Returns the ancestor of the current domain at the given number of levels "higher" (rightward)
+   * in the subdomain list. The number of levels must be non-negative, and less than {@code N-1},
+   * where {@code N} is the number of parts in the domain.
+   *
+   * <p>TODO: Reasonable candidate for addition to public API.
+   */
+  private InternetDomainName ancestor(int levels) {
+    ImmutableList<String> ancestorParts = parts.subList(levels, parts.size());
+
+    // levels equals the number of dots that are getting clipped away, then add the length of each
+    // clipped part to get the length of the leading substring that is being removed.
+    int substringFrom = levels;
+    for (int i = 0; i < levels; i++) {
+      substringFrom += parts.get(i).length();
+    }
+    String ancestorName = name.substring(substringFrom);
+
+    return new InternetDomainName(ancestorName, ancestorParts);
   }
 }
