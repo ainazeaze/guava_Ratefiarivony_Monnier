@@ -170,7 +170,13 @@ class StandardTable<R, C, V> extends AbstractTable<R, C, V> implements Serializa
     }
     return value;
   }
-
+  
+  /**
+   * Remove all mappings associated with the specified column key from the map.
+   * 
+   * @param column The column key to be removed.
+   * @return A map containing the removed mappings, with the row key as the key and the value as the value.
+   */
   @CanIgnoreReturnValue
   private Map<R, V> removeColumn(@CheckForNull Object column) {
     Map<R, V> output = new LinkedHashMap<>();
@@ -187,7 +193,15 @@ class StandardTable<R, C, V> extends AbstractTable<R, C, V> implements Serializa
     }
     return output;
   }
-
+  
+  /**
+   * Checks if the map contains a mapping with the specified row key, column key, and value.
+   * 
+   * @param rowKey The row key of the mapping to check.
+   * @param columnKey The column key of the mapping to check.
+   * @param value The value of the mapping to check.
+   * @return True if the map contains the mapping, false otherwise.
+   */
   private boolean containsMapping(
       @CheckForNull Object rowKey, @CheckForNull Object columnKey, @CheckForNull Object value) {
     return value != null && value.equals(get(rowKey, columnKey));
@@ -313,16 +327,26 @@ class StandardTable<R, C, V> extends AbstractTable<R, C, V> implements Serializa
   public Map<C, V> row(R rowKey) {
     return new Row(rowKey);
   }
-
+  
+  /**
+   * Represents a row in a map-based data structure.
+   *
+   * @param <R> The type of row key.
+   * @param <C> The type of column key.
+   * @param <V> The type of value.
+   */
   class Row extends IteratorBasedAbstractMap<C, V> {
     final R rowKey;
 
     Row(R rowKey) {
       this.rowKey = checkNotNull(rowKey);
     }
-
+    
+    /**
+     * Updates the backingRowMap field if necessary.
+     * If the backingRowMap is null or empty and the row is present in the backingMap, it computes and assigns the backingRowMap.
+     */
     @CheckForNull Map<C, V> backingRowMap;
-
     final void updateBackingRowMapField() {
       if (backingRowMap == null || (backingRowMap.isEmpty() && backingMap.containsKey(rowKey))) {
         backingRowMap = computeBackingRowMap();
@@ -690,7 +714,13 @@ class StandardTable<R, C, V> extends AbstractTable<R, C, V> implements Serializa
     Set<C> result = columnKeySet;
     return (result == null) ? columnKeySet = new ColumnKeySet() : result;
   }
-
+  
+  /**
+   * Represents the set of column keys in a map data structure.
+   *
+   * @param <C> The type of column key.
+   * @param <V> The type of value.
+   */
   @WeakOuter
   private class ColumnKeySet extends TableSet<C> {
     @Override
@@ -768,7 +798,13 @@ class StandardTable<R, C, V> extends AbstractTable<R, C, V> implements Serializa
   Iterator<C> createColumnKeyIterator() {
     return new ColumnKeyIterator();
   }
-
+  
+  /**
+   * Represents an iterator over the column keys in a map data structure.
+   *
+   * @param <C> The type of column key.
+   * @param <V> The type of value.
+   */
   private class ColumnKeyIterator extends AbstractIterator<C> {
     // Use the same map type to support TreeMaps with comparators that aren't
     // consistent with equals().
@@ -817,7 +853,14 @@ class StandardTable<R, C, V> extends AbstractTable<R, C, V> implements Serializa
   Map<R, Map<C, V>> createRowMap() {
     return new RowMap();
   }
-
+  
+  /**
+   * Represents a row-based view of a map data structure.
+   *
+   * @param <R> The type of row key.
+   * @param <C> The type of column key.
+   * @param <V> The type of value.
+   */
   @WeakOuter
   class RowMap extends ViewCachingAbstractMap<R, Map<C, V>> {
     @Override
@@ -844,7 +887,14 @@ class StandardTable<R, C, V> extends AbstractTable<R, C, V> implements Serializa
     protected Set<Entry<R, Map<C, V>>> createEntrySet() {
       return new EntrySet();
     }
-
+    
+    /**
+     * Represents the set of entries in a row-based map data structure.
+     *
+     * @param <R> The type of row key.
+     * @param <C> The type of column key.
+     * @param <V> The type of value.
+     */
     @WeakOuter
     private final class EntrySet extends TableSet<Entry<R, Map<C, V>>> {
       @Override
@@ -895,7 +945,14 @@ class StandardTable<R, C, V> extends AbstractTable<R, C, V> implements Serializa
     ColumnMap result = columnMap;
     return (result == null) ? columnMap = new ColumnMap() : result;
   }
-
+  
+  /**
+   * Represents a column-based view of a map data structure.
+   *
+   * @param <C> The type of column key.
+   * @param <R> The type of row key.
+   * @param <V> The type of value.
+   */
   @WeakOuter
   private class ColumnMap extends ViewCachingAbstractMap<C, Map<R, V>> {
     // The cast to C occurs only when the key is in the map, implying that it
@@ -933,7 +990,14 @@ class StandardTable<R, C, V> extends AbstractTable<R, C, V> implements Serializa
     Collection<Map<R, V>> createValues() {
       return new ColumnMapValues();
     }
-
+    
+    /**
+     * Represents the set of entries in a column-based map data structure.
+     *
+     * @param <C> The type of column key.
+     * @param <R> The type of row key.
+     * @param <V> The type of value.
+     */
     @WeakOuter
     private final class ColumnMapEntrySet extends TableSet<Entry<C, Map<R, V>>> {
       @Override
@@ -1004,7 +1068,14 @@ class StandardTable<R, C, V> extends AbstractTable<R, C, V> implements Serializa
         return changed;
       }
     }
-
+    
+    /**
+     * Represents the collection of values in a column-based map data structure.
+     *
+     * @param <C> The type of column key.
+     * @param <R> The type of row key.
+     * @param <V> The type of value.
+     */
     @WeakOuter
     private class ColumnMapValues extends Maps.Values<C, Map<R, V>> {
       ColumnMapValues() {
