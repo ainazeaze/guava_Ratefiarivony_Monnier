@@ -58,7 +58,7 @@ final class SmallCharMatcher extends NamedFastMatcher {
   }
 
   private boolean checkFilter(int c) {
-    return 1 == (1 & (filter >> c));
+    return (filter & (1L << c)) != 0;
   }
 
   // This is all essentially copied from ImmutableSet, but we have to duplicate because
@@ -80,10 +80,8 @@ final class SmallCharMatcher extends NamedFastMatcher {
     // Correct the size for open addressing to match desired load factor.
     // Round up to the next highest power of 2.
     int tableSize = Integer.highestOneBit(setSize - 1) << 1;
-    while (tableSize * DESIRED_LOAD_FACTOR < setSize) {
-      tableSize <<= 1;
-    }
-    return tableSize;
+    int desiredSize = (int) (DESIRED_LOAD_FACTOR * setSize);
+    return Math.max(tableSize, desiredSize);
   }
 
   static CharMatcher from(BitSet chars, String description) {
@@ -98,15 +96,10 @@ final class SmallCharMatcher extends NamedFastMatcher {
       // Compute the filter at the same time.
       filter |= 1L << c;
       int index = smear(c) & mask;
-      while (true) {
-        // Check for empty.
-        if (table[index] == 0) {
-          table[index] = (char) c;
-          break;
-        }
-        // Linear probing.
-        index = (index + 1) & mask;
+      while (table[index] != 0) {
+    	  index = (index + 1) & mask;
       }
+      table[index] = (char) c;
     }
     return new SmallCharMatcher(table, filter, containsZero, description);
   }
@@ -119,17 +112,18 @@ final class SmallCharMatcher extends NamedFastMatcher {
     if (!checkFilter(c)) {
       return false;
     }
-    int mask = table.length - 1;
+    int length = table.length;
+    int mask = length - 1;
     int startingIndex = smear(c) & mask;
     int index = startingIndex;
     do {
-      if (table[index] == 0) { // Check for empty.
+      char entry = table[index];
+      if (entry == 0) { // Check for empty.
         return false;
-      } else if (table[index] == c) { // Check for match.
+      } else if (entry == c) { // Check for match.
         return true;
-      } else { // Linear probing.
-        index = (index + 1) & mask;
-      }
+      } // Linear probing.
+      index = (index + 1) & mask;
       // Check to see if we wrapped around the whole table.
     } while (index != startingIndex);
     return false;
